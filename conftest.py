@@ -10,13 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from auth.utils import get_current_user_id
 from database.database import get_session
 from database.database_service import DatabaseService
-from group import models as group_models
-from group import schemas as group_schemas
-from item import models as item_models
-from item import schemas as item_schemas
+from webhook import schemas as item_schemas
 from main import APP
-from membership import models as membership_models
-from membership import schemas as membership_schemas
 from persistable.models import Base
 from user import models as user_models
 from user import schemas as user_schemas
@@ -86,30 +81,4 @@ def mock_user(mock_random_user_id) -> user_models.User:
     user_input = user_schemas.UserCreate(id=mock_random_user_id)
     return DatabaseService(next(override_get_session())).create(
         input_schema=user_input, model_type=user_models.User
-    )
-
-
-@pytest.fixture(name="mock_group")
-def mock_group() -> group_models.Group:
-    group_input = group_schemas.GroupCreate(name="Ramen")
-    return DatabaseService(next(override_get_session())).create(
-        input_schema=group_input, model_type=group_models.Group
-    )
-
-
-@pytest.fixture(name="mock_item")
-def mock_item() -> item_models.Item:
-    item_input = item_schemas.ItemCreate(name="Minca")
-    return DatabaseService(next(override_get_session())).create(
-        input_schema=item_input, model_type=item_models.Item
-    )
-
-
-@pytest.fixture(name="mock_membership")
-def mock_membership(mock_group, mock_item) -> membership_models.Membership:
-    membership_input = membership_schemas.MembershipCreate(
-        group_id=mock_group.id, item_id=mock_item.id
-    )
-    return DatabaseService(next(override_get_session())).create(
-        input_schema=membership_input, model_type=membership_models.Membership
     )

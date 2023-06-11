@@ -1,15 +1,12 @@
 # All
 start: db-start-detach app-start
 
-get-groups:
-	curl http://127.0.0.1:8000/groups | jq
-
 docs:
 	open http://127.0.0.1:8000/docs
 
 # App
 app-start:
-	pipenv run uvicorn main:APP --reload
+	pipenv run uvicorn main:app --reload
 
 # DB
 db-start:
