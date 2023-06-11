@@ -16,7 +16,7 @@ db-start-detach:
 	docker-compose up --detach
 
 db-connect:
-	docker exec -it rankings-db-1 bash
+	docker exec -it themesong-db-1 bash
 
 # Dev Tools
 lint:

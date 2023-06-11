@@ -1,24 +1,29 @@
 """Routing handler for /strava"""
-from typing import Optional
-
 import requests
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from requests import Response
+from sqlalchemy.orm import Session
 
 import utils
+from database.database import get_session
+from database.database_service import DatabaseService
 from settings import ENV_VARS
 from strava.schemas import (
     StravaOAauthTokenRequest,
     StravaOAuthTokenResponse,
+    StravaUserInfo,
     StravaWebhookInput,
 )
+from strava.service import StravaUserInfoService
+from user.schemas import UserCreate
+from user.service import UserService
 
 ROUTER = APIRouter()
 STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
 
 
 @ROUTER.get("/authorization", status_code=200)
-def authorization(code: str, scope: str, state: Optional[str] = None):
+def authorization(code: str, scope: str, session: Session = Depends(get_session)):
     """
     Redirect handler for when a Strava user grants access to the application
     Handler is responsible for:
@@ -33,8 +38,15 @@ def authorization(code: str, scope: str, state: Optional[str] = None):
         params=StravaOAauthTokenRequest(code=code).dict(),
     )
     response_pydantic = StravaOAuthTokenResponse(**response.json())
-    print(response_pydantic.access_token)
-    return
+    id = response_pydantic.athlete.id
+
+    user = UserCreate(id=id)
+    strava_user_info = StravaUserInfo(id=id, **response_pydantic.dict())
+
+    db_service = DatabaseService(session)
+
+    UserService(db_service=db_service).merge(user)
+    StravaUserInfoService(db_service=db_service).merge(strava_user_info)
 
 
 @ROUTER.post("/webhook", status_code=200)

@@ -1,21 +1,22 @@
 """models for User"""
-from pydantic import BaseModel
+from id_base_model.schemas import IntIDBaseModel
+from strava.schemas import StravaUserInfo
 
-from id_base_model.schemas import StrIDBaseModel
 
-
-class User(StrIDBaseModel):
+class User(IntIDBaseModel):
     """
     Pydantic model for User
     """
+
+    strava_user_info: StravaUserInfo
 
     class Config:
         # TODO: should this be moved to IDBaseModel
         orm_mode = True
 
 
-class UserCreate(BaseModel):
-    id: str
+class UserCreate(IntIDBaseModel):
+    pass
 
 
 # uncomment when patching is supported

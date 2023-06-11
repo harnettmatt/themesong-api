@@ -1,10 +1,11 @@
 """schemas for Strava"""
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
 
+from id_base_model.schemas import IntIDBaseModel
 from settings import ENV_VARS
 
 
@@ -36,18 +37,27 @@ class StravaOAauthTokenRequest(BaseModel):
     grant_type: str = "authorization_code"
 
 
-class StravaAthlete(BaseModel):
-    id: int
+class StravaAthlete(IntIDBaseModel):
     username: str
     firstname: str
     lastname: str
     # TODO: what other attributes should i load in
 
 
-class StravaOAuthTokenResponse(BaseModel):
-    token_type: str
+class StravaAuth(BaseModel):
+    # token_type: str
     expires_at: datetime
-    expires_in: timedelta
+    # expires_in: timedelta
     refresh_token: str
     access_token: str
+
+
+class StravaUserInfo(IntIDBaseModel, StravaAuth):
+    pass
+
+    class Config:
+        orm_mode = True
+
+
+class StravaOAuthTokenResponse(StravaAuth):
     athlete: StravaAthlete

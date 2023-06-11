@@ -24,7 +24,7 @@ class DatabaseService:
 
     def get(self, id: ID, model_type: Type[Persistable]):
         """
-        Gets instance from db for a given model and id
+        Gets object from db for a given model and id
         """
         user = self.session.query(model_type).get(id)
         if user is None:
@@ -34,59 +34,68 @@ class DatabaseService:
 
     def all(self, model_type: Type[Persistable], skip: int = 0, limit: int = 100):
         """
-        Gets all instances from db for a given model and optional limiting
+        Gets all objects from db for a given model and optional limiting
         """
         return self.session.query(model_type).offset(skip).limit(limit).all()
 
     def create(self, input_schema: BaseModel, model_type: Type[Persistable]):
         """
-        Creates instance in db for a given pydantic input schema and model
+        Creates object in db for a given pydantic input schema and model
         """
-        model_instance = model_type(**jsonable_encoder(input_schema))
+        model_object = model_type(**jsonable_encoder(input_schema))
 
-        self.session.add(model_instance)
+        self.session.add(model_object)
         self.session.commit()
-        self.session.refresh(model_instance)
 
-        return model_instance
+        return model_object
 
     def delete(self, id: ID, model_type: Type[Persistable]):
         """
-        Deletes instance from db for a given model and id
+        Deletes object from db for a given model and id
         """
-        model_instance = self.get(id=id, model_type=model_type)
-        self.session.delete(model_instance)
+        model_object = self.get(id=id, model_type=model_type)
+        self.session.delete(model_object)
         self.session.commit()
 
-        return model_instance
+        return model_object
 
     def update(self, id: ID, input_schema: BaseModel, model_type: Type[Persistable]):
         """
-        Gets instance from db, merges input_schema with db instance, update db instance
+        Gets object from db, merges input_schema with db object, update db object
         """
-        model_instance = self.get(id=id, model_type=model_type)
-        updated_model_instance = self._update_model_instance_from_input(
-            input=input_schema, model_instance=model_instance
+        model_object = self.get(id=id, model_type=model_type)
+        updated_model_object = self._update_model_object_from_input(
+            input=input_schema, model_object=model_object
         )
 
-        self.session.add(updated_model_instance)
+        self.session.add(updated_model_object)
         self.session.commit()
-        self.session.refresh(updated_model_instance)
 
-        return updated_model_instance
+        return updated_model_object
+
+    def merge(self, input_schema: BaseModel, model_type: Type[Persistable]):
+        """
+        Updates object if exists in db, otherwise creates db object
+        """
+        model_object = model_type(**jsonable_encoder(input_schema))
+
+        self.session.merge(model_object)
+        self.session.commit()
+
+        return model_object
 
     @classmethod
-    def _update_model_instance_from_input(
-        cls, input: BaseModel, model_instance: Persistable
+    def _update_model_object_from_input(
+        cls, input: BaseModel, model_object: Persistable
     ) -> Persistable:
         """
-        Converts input and model_instance to dicts and updates model_instance
+        Converts input and model_object to dicts and updates model_object
         """
         update_dict = input.dict(exclude_none=True)
-        model_instance_dict = jsonable_encoder(model_instance)
+        model_object_dict = jsonable_encoder(model_object)
 
         for key, val in update_dict.items():
-            if key in model_instance_dict:
-                setattr(model_instance, key, val)
+            if key in model_object_dict:
+                setattr(model_object, key, val)
 
-        return model_instance
+        return model_object
