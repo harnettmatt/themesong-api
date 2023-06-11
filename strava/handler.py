@@ -1,18 +1,15 @@
-# TODO: rename this handler to the 'strava' handler to include endpoints other than webhook
-"""Routing handler for /webhook"""
-import json
+"""Routing handler for /strava"""
 from fastapi import APIRouter, HTTPException, Request
+from strava.schemas import StravaWebhookInput
 import utils
-from webhook.schemas import WebhookInput
-
 
 ROUTER = APIRouter()
 
 # TODO: create callback for strava authorization. This endpoint should persist the athlete id and token
 
 
-@ROUTER.post("", status_code=200)
-async def receive_event(request_body: WebhookInput):
+@ROUTER.post("/webhook", status_code=200)
+async def receive_event(request_body: StravaWebhookInput):
     """
     Recieves event from Strava for processing
     """
@@ -22,7 +19,7 @@ async def receive_event(request_body: WebhookInput):
     return
 
 
-@ROUTER.get("", status_code=200)
+@ROUTER.get("/webhook", status_code=200)
 def verify_webhook(request: Request):
     """
     Callback for event subscription for Strava

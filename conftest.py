@@ -10,8 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from auth.utils import get_current_user_id
 from database.database import get_session
 from database.database_service import DatabaseService
-from webhook import schemas as item_schemas
-from main import APP
+from main import app
 from persistable.models import Base
 from user import models as user_models
 from user import schemas as user_schemas
@@ -28,7 +27,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 Base.metadata.create_all(bind=engine)
 
 
-# APP OVERRIDES
+# app OVERRIDES
 def override_get_session():
     db = TestingSessionLocal()
     try:
@@ -45,14 +44,14 @@ def override_get_current_user_id():
     return MOCK_USER_ID
 
 
-APP.dependency_overrides[get_session] = override_get_session
-APP.dependency_overrides[get_current_user_id] = override_get_current_user_id
+app.dependency_overrides[get_session] = override_get_session
+app.dependency_overrides[get_current_user_id] = override_get_current_user_id
 
 
 # TEST CLIENT WITH OVERRIDES
 @pytest.fixture(name="test_client")
 def fixture_test_client():
-    return TestClient(APP)
+    return TestClient(app)
 
 
 # FIXTURES
