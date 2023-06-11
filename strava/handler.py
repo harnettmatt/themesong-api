@@ -1,7 +1,8 @@
 """Routing handler for /strava"""
 from fastapi import APIRouter, HTTPException, Request
-from strava.schemas import StravaWebhookInput
+
 import utils
+from strava.schemas import StravaWebhookInput
 
 ROUTER = APIRouter()
 
