@@ -1,0 +1,3 @@
+[MASTER]
+
+disable=import-error, too-few-public-methods, fixme, duplicate-code, missing-function-docstring, missing-class-docstring, missing-module-docstring

@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+uvicorn = "*"
+fastapi = "*"
+requests = "*"
+pydantic = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+pyjwt = {extras = ["crypto"], version = "*"}
+
+[dev-packages]
+sqlalchemy-stubs = "*"
+pytest = "*"
+pytest-mock = "*"
+black = "*"
+httpx = "*" # https://github.com/tiangolo/fastapi/issues/5656
+mypy = "*"
+types-requests = "*"
+
+[requires]
+python_version = "3.9"
