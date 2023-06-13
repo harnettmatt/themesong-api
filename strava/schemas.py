@@ -53,6 +53,7 @@ class StravaAuth(BaseModel):
 
 
 class StravaUserInfo(IntIDBaseModel, StravaAuth):
+    user_id: int
     pass
 
     class Config:
@@ -61,3 +62,15 @@ class StravaUserInfo(IntIDBaseModel, StravaAuth):
 
 class StravaOAuthTokenResponse(StravaAuth):
     athlete: StravaAthlete
+
+
+class StravaActivity(BaseModel):
+    # TODO: write a property field that calculated the end
+    id: int
+    start_date: datetime
+    elapsed_time: int
+    description: str
+
+
+class StravaActivityStream(BaseModel):
+    pass

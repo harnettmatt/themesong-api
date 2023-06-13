@@ -10,3 +10,6 @@ class UserService:
 
     def merge(self, user: schemas.UserCreate):
         self.db_service.merge(input_schema=user, model_type=models.User)
+
+    def get(self, id: int) -> models.User:
+        return self.db_service.get(id=id, model_type=models.User)
