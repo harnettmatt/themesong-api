@@ -1,5 +1,6 @@
 """Routing handler for /strava"""
 from datetime import datetime, timedelta
+from enum import Enum
 from typing import Optional
 
 import requests
@@ -11,6 +12,8 @@ import utils
 from database.database import get_session
 from database.database_service import DatabaseService
 from settings import ENV_VARS
+from spotify.schemas import SpotifyTrack
+from spotify.service import SpotifyAPIService
 from strava.schemas import (
     StravaActivity,
     StravaAspectType,
@@ -21,6 +24,7 @@ from strava.schemas import (
     StravaWebhookInput,
 )
 from strava.service import StravaUserInfoService
+from user.models import User
 from user.schemas import UserCreate
 from user.service import UserService
 
@@ -75,6 +79,8 @@ async def receive_event(
         db_service = DatabaseService(session)
         user = UserService(db_service=db_service).get(request_body.owner_id)
         # TODO: create a strava service for this that handles token refreshing, headers, and prefixes better
+        # TODO: we might want to just disable mypy entirely because of this interaction with sqlalchemy.
+        #       mypy treats all non-id fields as optional which causes issues with statements like these
         if user.strava_user_info.expires_at <= datetime.utcnow():  # type: ignore
             # TODO: refresh token
             pass
@@ -95,8 +101,15 @@ async def receive_event(
         max_hr_date_time = get_datetime_of_max_hr_for_activity_stream(
             activity_stream=body, activity_start_date=activity.start_date
         )
-        print(max_hr_date_time)
-        # TODO: get spotify history data for the time determined
+        if max_hr_date_time is not None:
+            track = get_spotify_track_for_datetime(
+                user=user, max_hr_date_time=max_hr_date_time
+            )
+            if track is not None:
+                print(track.name)
+            else:
+                print("could not find track")
+
         # TODO: update activity description with spotify song
         # TODO: update strava photos with a photo of the album art if user opts in
         # TODO: do i need to return something here. Check Strava docs if this doesn't work as is
@@ -104,6 +117,49 @@ async def receive_event(
     else:
         print("getting some different event")
     return
+
+
+# TODO: move this into a service
+class SearchDirection(Enum):
+    EARLIER = "earlier"
+    LATER = "later"
+
+
+# TODO: move this into a service
+def get_spotify_track_for_datetime(
+    user: User, max_hr_date_time: datetime
+) -> Optional[SpotifyTrack]:
+    search_direction: Optional[SearchDirection] = SearchDirection.EARLIER
+    for _ in range(5):
+        if search_direction == SearchDirection.EARLIER:
+            date_cursor = max_hr_date_time - timedelta(minutes=30)
+        else:
+            date_cursor = max_hr_date_time + timedelta(minutes=30)
+
+        user_history_response = SpotifyAPIService().get_user_history(
+            access_token=user.spotify_user_info.access_token, after=date_cursor  # type: ignore
+        )
+        search_direction = None
+        user_history_response.items.reverse()
+        for play_history_item in user_history_response.items:
+            start_time = play_history_item.played_at
+            # TODO: is duration the time listened, or the duration of the song
+            #       if this is the duration of the song then probably want use the start date of the next song as the range instead
+            track_end_time = start_time + timedelta(
+                milliseconds=play_history_item.track.duration_ms
+            )
+            # max_hr_date_time falls within track time
+            if start_time <= max_hr_date_time and max_hr_date_time <= track_end_time:
+                return play_history_item.track
+            # max_hr_date_time is later than the track
+            elif start_time < max_hr_date_time and track_end_time < max_hr_date_time:
+                continue
+            # max_hr_date_time is earlier than the track
+            else:
+                search_direction = SearchDirection.EARLIER
+        if search_direction is None:
+            search_direction = SearchDirection.LATER
+    return None
 
 
 # TODO this can be a function on ActivityStream schema when that exists

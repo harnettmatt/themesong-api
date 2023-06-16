@@ -54,7 +54,6 @@ class StravaAuth(BaseModel):
 
 class StravaUserInfo(IntIDBaseModel, StravaAuth):
     user_id: int
-    pass
 
     class Config:
         orm_mode = True
@@ -69,7 +68,7 @@ class StravaActivity(BaseModel):
     id: int
     start_date: datetime
     elapsed_time: int
-    description: str
+    description: Optional[str]
 
 
 class StravaActivityStream(BaseModel):
