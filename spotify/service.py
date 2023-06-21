@@ -47,7 +47,7 @@ class SpotifyAPIService:
 
     @staticmethod
     def get_user_history(
-        access_token: str, after: datetime, limit: int = 30
+        access_token: str, after: datetime, limit: int = 50
     ) -> schemas.SpotifyRecentlyPlayedResponse:
         after_milliseconds = int(after.timestamp() * 1000)
         response: Response = requests.get(

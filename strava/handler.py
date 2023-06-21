@@ -74,8 +74,8 @@ async def receive_event(
     # TODO: move this all into a service
     if (
         request_body.aspect_type == StravaAspectType.UPDATE
-        and request_body.object_type == StravaObjectType.ACTIVITY
-    ):
+        or request_body.aspect_type == StravaAspectType.CREATE
+    ) and request_body.object_type == StravaObjectType.ACTIVITY:
         db_service = DatabaseService(session)
         user = UserService(db_service=db_service).get(request_body.owner_id)
         # TODO: create a strava service for this that handles token refreshing, headers, and prefixes better
@@ -85,6 +85,7 @@ async def receive_event(
             # TODO: refresh token
             pass
 
+        # TODO: use Strava sdk
         # TODO: type the response
         response: Response = requests.get(
             f"{STAVA_API_PREFIX}/activities/{request_body.object_id}",
@@ -106,12 +107,17 @@ async def receive_event(
                 user=user, max_hr_date_time=max_hr_date_time
             )
             if track is not None:
-                print(track.name)
+                response = requests.put(
+                    f"{STAVA_API_PREFIX}/activities/{activity.id}",
+                    headers={
+                        "Authorization": f"Bearer {user.strava_user_info.access_token}"
+                    },
+                    data={
+                        "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
+                    },
+                )
             else:
                 print("could not find track")
-
-        # TODO: update activity description with spotify song
-        # TODO: update strava photos with a photo of the album art if user opts in
         # TODO: do i need to return something here. Check Strava docs if this doesn't work as is
 
     else:
@@ -129,36 +135,28 @@ class SearchDirection(Enum):
 def get_spotify_track_for_datetime(
     user: User, max_hr_date_time: datetime
 ) -> Optional[SpotifyTrack]:
-    search_direction: Optional[SearchDirection] = SearchDirection.EARLIER
-    for _ in range(5):
-        if search_direction == SearchDirection.EARLIER:
-            date_cursor = max_hr_date_time - timedelta(minutes=30)
-        else:
-            date_cursor = max_hr_date_time + timedelta(minutes=30)
-
-        user_history_response = SpotifyAPIService().get_user_history(
-            access_token=user.spotify_user_info.access_token, after=date_cursor  # type: ignore
+    user_history_response = SpotifyAPIService().get_user_history(
+        access_token=user.spotify_user_info.access_token, after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
+    )
+    user_history_response.items.reverse()
+    for play_history_item in user_history_response.items:
+        # TODO: PLAYED_AT IS THE END TIME OF THE TRACK
+        start_time = play_history_item.played_at
+        # TODO: is duration the time listened, or the duration of the song
+        #       if this is the duration of the song then probably want use the start date of the next song as the range instead
+        track_end_time = start_time + timedelta(
+            milliseconds=play_history_item.track.duration_ms
         )
-        search_direction = None
-        user_history_response.items.reverse()
-        for play_history_item in user_history_response.items:
-            start_time = play_history_item.played_at
-            # TODO: is duration the time listened, or the duration of the song
-            #       if this is the duration of the song then probably want use the start date of the next song as the range instead
-            track_end_time = start_time + timedelta(
-                milliseconds=play_history_item.track.duration_ms
-            )
-            # max_hr_date_time falls within track time
-            if start_time <= max_hr_date_time and max_hr_date_time <= track_end_time:
-                return play_history_item.track
-            # max_hr_date_time is later than the track
-            elif start_time < max_hr_date_time and track_end_time < max_hr_date_time:
-                continue
-            # max_hr_date_time is earlier than the track
-            else:
-                search_direction = SearchDirection.EARLIER
-        if search_direction is None:
-            search_direction = SearchDirection.LATER
+        # max_hr_date_time falls within track time
+        if start_time <= max_hr_date_time and max_hr_date_time <= track_end_time:
+            return play_history_item.track
+        # max_hr_date_time is later than the track
+        elif start_time < max_hr_date_time and track_end_time < max_hr_date_time:
+            continue
+        # max_hr_date_time is earlier than the track
+        else:
+            raise Exception("Didn't search for tracks far enough back in time")
+
     return None
 
 
