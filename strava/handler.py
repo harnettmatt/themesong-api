@@ -14,19 +14,18 @@ from database.database_service import DatabaseService
 from settings import ENV_VARS
 from spotify.schemas import SpotifyTrack
 from spotify.service import SpotifyAPIService
+from strava.models import StravaUserInfo as StravaUserInfoModel
 from strava.schemas import (
     StravaActivity,
     StravaAspectType,
     StravaOAauthTokenRequest,
     StravaOAuthTokenResponse,
     StravaObjectType,
-    StravaUserInfo,
-    StravaWebhookInput,
 )
-from strava.service import StravaUserInfoService
+from strava.schemas import StravaUserInfo as StravaUserInfoSchema
+from strava.schemas import StravaWebhookInput
 from user.models import User
 from user.schemas import UserCreate
-from user.service import UserService
 
 ROUTER = APIRouter()
 STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
@@ -52,14 +51,14 @@ def authorization(code: str, scope: str, session: Session = Depends(get_session)
     id = response_pydantic.athlete.id
 
     user = UserCreate(id=id)
-    strava_user_info = StravaUserInfo(
+    strava_user_info = StravaUserInfoSchema(
         id=id, user_id=user.id, **response_pydantic.dict()
     )
 
     db_service = DatabaseService(session)
 
-    UserService(db_service=db_service).merge(user)
-    StravaUserInfoService(db_service=db_service).merge(strava_user_info)
+    db_service.merge(input_schema=user, model_type=User)
+    db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
 
 
 # TODO: will we be able to process everything in 30 seconds? If not we can use a background task
@@ -77,7 +76,7 @@ async def receive_event(
         or request_body.aspect_type == StravaAspectType.CREATE
     ) and request_body.object_type == StravaObjectType.ACTIVITY:
         db_service = DatabaseService(session)
-        user = UserService(db_service=db_service).get(request_body.owner_id)
+        user = db_service.get(id=request_body.owner_id, model_type=User)
         # TODO: create a strava service for this that handles token refreshing, headers, and prefixes better
         # TODO: we might want to just disable mypy entirely because of this interaction with sqlalchemy.
         #       mypy treats all non-id fields as optional which causes issues with statements like these
@@ -117,6 +116,7 @@ async def receive_event(
                     },
                 )
             else:
+                # TODO: try and atempt with the next highest heart rate
                 print("could not find track")
         # TODO: do i need to return something here. Check Strava docs if this doesn't work as is
 
@@ -140,18 +140,15 @@ def get_spotify_track_for_datetime(
     )
     user_history_response.items.reverse()
     for play_history_item in user_history_response.items:
-        # TODO: PLAYED_AT IS THE END TIME OF THE TRACK
-        start_time = play_history_item.played_at
-        # TODO: is duration the time listened, or the duration of the song
-        #       if this is the duration of the song then probably want use the start date of the next song as the range instead
-        track_end_time = start_time + timedelta(
+        end_time = play_history_item.played_at
+        start_time = end_time - timedelta(
             milliseconds=play_history_item.track.duration_ms
         )
         # max_hr_date_time falls within track time
-        if start_time <= max_hr_date_time and max_hr_date_time <= track_end_time:
+        if start_time <= max_hr_date_time and max_hr_date_time <= end_time:
             return play_history_item.track
         # max_hr_date_time is later than the track
-        elif start_time < max_hr_date_time and track_end_time < max_hr_date_time:
+        elif start_time < max_hr_date_time and end_time < max_hr_date_time:
             continue
         # max_hr_date_time is earlier than the track
         else:
