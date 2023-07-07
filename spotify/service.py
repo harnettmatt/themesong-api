@@ -25,8 +25,13 @@ class SpotifyUserInfoService:
 
 
 class SpotifyAPIService:
+    token: str
+
+    def __init__(self, token) -> None:
+        self.token = token
+
     @staticmethod
-    def exchange_code_for_token(code: str) -> schemas.SpotifyTokenResponse:
+    def exchange_code(code: str) -> schemas.SpotifyTokenResponse:
         token = f"{ENV_VARS.SPOTIFY_CLIENT_ID}:{ENV_VARS.SPOTIFY_CLIENT_SECRET}"
         encoded_token = base64.b64encode(token.encode("ascii")).decode("ascii")
         response: Response = requests.post(
@@ -37,22 +42,20 @@ class SpotifyAPIService:
 
         return schemas.SpotifyTokenResponse(**response.json())
 
-    @staticmethod
-    def get_user(access_token: str) -> schemas.SpotifyUserResponse:
+    def get_user(self) -> schemas.SpotifyUserResponse:
         response: Response = requests.get(
             f"{SPOTIFY_BASE_URL}/me",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {self.token}"},
         )
         return schemas.SpotifyUserResponse(**response.json())
 
-    @staticmethod
     def get_user_history(
-        access_token: str, after: datetime, limit: int = 50
+        self, after: datetime, limit: int = 50
     ) -> schemas.SpotifyRecentlyPlayedResponse:
         after_milliseconds = int(after.timestamp() * 1000)
         response: Response = requests.get(
             f"{SPOTIFY_BASE_URL}/me/player/recently-played",
-            headers={"Authorization": f"Bearer {access_token}"},
+            headers={"Authorization": f"Bearer {self.token}"},
             params=schemas.SpotifyRecentlyPlayedRequest(
                 after=after_milliseconds, limit=limit
             ).dict(),

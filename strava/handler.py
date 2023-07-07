@@ -3,37 +3,29 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
 
-import requests
 from fastapi import APIRouter, Depends, HTTPException, Request
-from requests import Response
-from sqlalchemy.orm import Session
 
 import utils
-from database.database import get_session
+from database.database import get_db_service
 from database.database_service import DatabaseService
 from settings import ENV_VARS
 from spotify.schemas import SpotifyTrack
 from spotify.service import SpotifyAPIService
 from strava.models import StravaUserInfo as StravaUserInfoModel
-from strava.schemas import (
-    StravaActivity,
-    StravaAspectType,
-    StravaOAauthTokenRequest,
-    StravaOAuthTokenResponse,
-    StravaObjectType,
-)
+from strava.schemas import StravaAspectType, StravaObjectType
 from strava.schemas import StravaUserInfo as StravaUserInfoSchema
 from strava.schemas import StravaWebhookInput
+from strava.service import StravaAPIService, StreamKeys
 from user.models import User
 from user.schemas import UserCreate
 
 ROUTER = APIRouter()
-STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
-STAVA_API_PREFIX = "https://www.strava.com/api/v3"
 
 
 @ROUTER.get("/authorization", status_code=200)
-def authorization(code: str, scope: str, session: Session = Depends(get_session)):
+def authorization(
+    code: str, scope: str, db_service: DatabaseService = Depends(get_db_service)
+):
     """
     Redirect handler for when a Strava user grants access to the application
     Handler is responsible for:
@@ -43,28 +35,22 @@ def authorization(code: str, scope: str, session: Session = Depends(get_session)
     Auth url: http://www.strava.com/oauth/authorize?client_id=108820&response_type=code&redirect_uri=https://17dd-65-154-225-130.ngrok-free.app/strava/authorization&approval_prompt=force&scope=activity:read_all,activity:write
     """
     # TODO: check to make sure the correct permissions are granted, is there a specific error code that needs to be returned if this is unsuccessful
-    response: Response = requests.post(
-        STRAVA_TOKEN_URL,
-        params=StravaOAauthTokenRequest(code=code).dict(),
-    )
-    response_pydantic = StravaOAuthTokenResponse(**response.json())
-    id = response_pydantic.athlete.id
+    response = StravaAPIService.exchange_code(code)
 
-    user = UserCreate(id=id)
+    user = UserCreate(id=response.athlete.id)
+    # TODO: should we be generating our own user id?
     strava_user_info = StravaUserInfoSchema(
-        id=id, user_id=user.id, **response_pydantic.dict()
+        id=user.id, user_id=user.id, **response.dict()
     )
-
-    db_service = DatabaseService(session)
 
     db_service.merge(input_schema=user, model_type=User)
     db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
 
 
-# TODO: will we be able to process everything in 30 seconds? If not we can use a background task
 @ROUTER.post("/webhook", status_code=200)
 async def receive_event(
-    request_body: StravaWebhookInput, session: Session = Depends(get_session)
+    request_body: StravaWebhookInput,
+    db_service: DatabaseService = Depends(get_db_service),
 ):
     """
     Recieves event from Strava for processing
@@ -75,7 +61,6 @@ async def receive_event(
         request_body.aspect_type == StravaAspectType.UPDATE
         or request_body.aspect_type == StravaAspectType.CREATE
     ) and request_body.object_type == StravaObjectType.ACTIVITY:
-        db_service = DatabaseService(session)
         user = db_service.get(id=request_body.owner_id, model_type=User)
         # TODO: create a strava service for this that handles token refreshing, headers, and prefixes better
         # TODO: we might want to just disable mypy entirely because of this interaction with sqlalchemy.
@@ -84,33 +69,22 @@ async def receive_event(
             # TODO: refresh token
             pass
 
-        # TODO: use Strava sdk
-        # TODO: type the response
-        response: Response = requests.get(
-            f"{STAVA_API_PREFIX}/activities/{request_body.object_id}",
-            headers={"Authorization": f"Bearer {user.strava_user_info.access_token}"},
+        strava_api_service = StravaAPIService(user.strava_user_info.access_token)
+        activity = strava_api_service.get_activity(request_body.object_id)
+        activity_stream = strava_api_service.get_stream_for_activity(
+            id=activity.id, stream_keys=[StreamKeys.TIME, StreamKeys.HEARTRATE]
         )
-        activity = StravaActivity(
-            **response.json()
-        )  # TODO pydantic conversion for the response here
-        response = requests.get(
-            f"{STAVA_API_PREFIX}/activities/{activity.id}/streams?&keys=time,heartrate&key_by_type=true",
-            headers={"Authorization": f"Bearer {user.strava_user_info.access_token}"},
-        )
-        body = response.json()
+
         max_hr_date_time = get_datetime_of_max_hr_for_activity_stream(
-            activity_stream=body, activity_start_date=activity.start_date
+            activity_stream=activity_stream, activity_start_date=activity.start_date
         )
         if max_hr_date_time is not None:
             track = get_spotify_track_for_datetime(
                 user=user, max_hr_date_time=max_hr_date_time
             )
             if track is not None:
-                response = requests.put(
-                    f"{STAVA_API_PREFIX}/activities/{activity.id}",
-                    headers={
-                        "Authorization": f"Bearer {user.strava_user_info.access_token}"
-                    },
+                strava_api_service.update_activity(
+                    id=activity.id,
                     data={
                         "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
                     },
@@ -135,8 +109,10 @@ class SearchDirection(Enum):
 def get_spotify_track_for_datetime(
     user: User, max_hr_date_time: datetime
 ) -> Optional[SpotifyTrack]:
-    user_history_response = SpotifyAPIService().get_user_history(
-        access_token=user.spotify_user_info.access_token, after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
+    user_history_response = SpotifyAPIService(
+        token=user.spotify_user_info.access_token
+    ).get_user_history(
+        after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
     )
     user_history_response.items.reverse()
     for play_history_item in user_history_response.items:

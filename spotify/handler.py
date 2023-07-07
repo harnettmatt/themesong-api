@@ -2,19 +2,20 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 
-from database.database import get_session
+from database.database import get_db_service
 from database.database_service import DatabaseService
-from spotify.schemas import SpotifyUserInfo
-from spotify.service import SpotifyAPIService, SpotifyUserInfoService
+from spotify import models, schemas
+from spotify.service import SpotifyAPIService
 
 ROUTER = APIRouter()
 
 
 @ROUTER.get("/authorization", status_code=200)
 def authorization(
-    code: str, state: Optional[str], session: Session = Depends(get_session)
+    code: str,
+    state: Optional[str],
+    db_service: DatabaseService = Depends(get_db_service),
 ):
     """
     Redirect handler for when a Spotify user grants access to the application
@@ -30,17 +31,16 @@ def authorization(
       state: state
     }));
     """
-    # TODO: services like SpotifyAPIService, DatabaseService, and SpotifyUserInfoService should probably be be dependencies
-    spotify_api_service = SpotifyAPIService()
-    token_response = spotify_api_service.exchange_code_for_token(code)
-    user_response = spotify_api_service.get_user(token_response.access_token)
+    # TODO: SpotifyAPIService could be a dependency?
+    token_response = SpotifyAPIService.exchange_code(code)
+    user_response = SpotifyAPIService(token_response.access_token).get_user()
 
     # TODO: need to figure out how to get user id here. Hardcoding for now
     #       maybe its None at the start and then associated later?
     #       maybe the creation of the userinfo object needs to happen in a separate request from the client
-    spotify_user_info = SpotifyUserInfo(
+    spotify_user_info = schemas.SpotifyUserInfo(
         user_id=42496487,
         **token_response.dict(),
         **user_response.dict(),
     )
-    SpotifyUserInfoService(db_service=DatabaseService(session)).merge(spotify_user_info)
+    db_service.merge(input_schema=spotify_user_info, model_type=models.SpotifyUserInfo)

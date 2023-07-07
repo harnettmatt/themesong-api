@@ -30,7 +30,7 @@ class StravaWebhookInput(BaseModel):
     updates: Optional[dict] = None  # TODO: not sure if this is the right type
 
 
-class StravaOAauthTokenRequest(BaseModel):
+class StravaOAuthTokenRequest(BaseModel):
     client_id: int = ENV_VARS.STRAVA_CLIENT_ID
     client_secret: str = ENV_VARS.STRAVA_CLIENT_SECRET
     code: str

@@ -22,6 +22,8 @@ class DatabaseService:
     def __init__(self, session: Session):
         self.session = session
 
+    # TODO: we should return a generic here that is the same type as model_type
+    #       should also consider setting this as self.model_type
     def get(self, id: ID, model_type: Type[Persistable]):
         """
         Gets object from db for a given model and id
