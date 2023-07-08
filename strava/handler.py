@@ -74,24 +74,25 @@ async def receive_event(
         activity_stream = strava_api_service.get_stream_for_activity(
             id=activity.id, stream_keys=[StreamKeys.TIME, StreamKeys.HEARTRATE]
         )
+        max_hr_time_mark = activity_stream.get_max_heartrate_time_mark()
+        if max_hr_time_mark is None:
+            print("could not find track")
+            return
 
-        max_hr_date_time = get_datetime_of_max_hr_for_activity_stream(
-            activity_stream=activity_stream, activity_start_date=activity.start_date
+        max_hr_date_time = activity.start_date + max_hr_time_mark
+        track = get_spotify_track_for_datetime(
+            user=user, max_hr_date_time=max_hr_date_time
         )
-        if max_hr_date_time is not None:
-            track = get_spotify_track_for_datetime(
-                user=user, max_hr_date_time=max_hr_date_time
-            )
-            if track is not None:
-                strava_api_service.update_activity(
-                    id=activity.id,
-                    data={
-                        "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
-                    },
-                )
-            else:
-                # TODO: try and atempt with the next highest heart rate
-                print("could not find track")
+        if track is None:
+            # TODO: try and atempt with the next highest heart rate
+            print("could not find track")
+            return
+        strava_api_service.update_activity(
+            id=activity.id,
+            data={
+                "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
+            },
+        )
         # TODO: do i need to return something here. Check Strava docs if this doesn't work as is
 
     else:
@@ -131,20 +132,6 @@ def get_spotify_track_for_datetime(
             raise Exception("Didn't search for tracks far enough back in time")
 
     return None
-
-
-# TODO this can be a function on ActivityStream schema when that exists
-def get_datetime_of_max_hr_for_activity_stream(
-    activity_stream: dict, activity_start_date: datetime
-) -> Optional[datetime]:
-    hr_data = activity_stream["heartrate"]["data"]
-    max_hr = max(hr_data)
-
-    if max_hr > 0:
-        seconds_elapsed = activity_stream["time"]["data"][hr_data.index(max_hr)]
-        return activity_start_date + timedelta(seconds=seconds_elapsed)
-    else:
-        return None
 
 
 @ROUTER.get("/webhook", status_code=200)

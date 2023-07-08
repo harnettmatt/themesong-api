@@ -1,5 +1,5 @@
 """schemas for Strava"""
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
 
@@ -71,5 +71,27 @@ class StravaActivity(BaseModel):
     description: Optional[str]
 
 
+class StravaActivityStreamData(BaseModel):
+    data: list[float]
+
+
 class StravaActivityStream(BaseModel):
-    pass
+    heartrate: StravaActivityStreamData
+    time: StravaActivityStreamData
+
+    def get_max_heartrate(self) -> Optional[float]:
+        if len(self.heartrate.data) == 0:
+            return None
+        return max(self.heartrate.data)
+
+    def get_max_heartrate_time_mark(self) -> Optional[timedelta]:
+        max_heartrate = self.get_max_heartrate()
+        if max_heartrate is None:
+            return None
+        if len(self.time.data) == 0:
+            return None
+
+        max_heartrate_index = self.heartrate.data.index(max_heartrate)
+        seconds_elapsed = self.time.data[max_heartrate_index]
+
+        return timedelta(seconds=seconds_elapsed)

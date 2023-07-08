@@ -38,14 +38,13 @@ class StravaAPIService:
 
     def get_stream_for_activity(
         self, id: int, stream_keys: List[StreamKeys], key_by_type: bool = True
-    ):
+    ) -> schemas.StravaActivityStream:
         stream_keys_str = ",".join([key.value for key in stream_keys])
         response = requests.get(
             f"{STAVA_API_PREFIX}/activities/{id}/streams?&keys={stream_keys_str}&key_by_type={str(key_by_type).lower()}",
             headers={"Authorization": f"Bearer {self.token}"},
         )
-        # TODO: type this response
-        return response.json()
+        return schemas.StravaActivityStream(**response.json())
 
     def update_activity(self, id: int, data: dict):
         requests.put(
