@@ -4,24 +4,11 @@ from datetime import datetime
 import requests
 from requests import Response
 
-from database.database_service import DatabaseService
 from settings import ENV_VARS
-from spotify import models, schemas
+from spotify import schemas
 
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 SPOTIFY_BASE_URL = "https://api.spotify.com/v1"
-
-
-class SpotifyUserInfoService:
-    db_service: DatabaseService
-
-    def __init__(self, db_service: DatabaseService):
-        self.db_service = db_service
-
-    def merge(self, spotify_user_info: schemas.SpotifyUserInfo):
-        self.db_service.merge(
-            input_schema=spotify_user_info, model_type=models.SpotifyUserInfo
-        )
 
 
 class SpotifyAPIService:

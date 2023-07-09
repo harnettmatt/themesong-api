@@ -5,6 +5,7 @@ from typing import List, Optional
 import requests
 from requests import Response
 
+from api_utils.service import APIService
 from database.database_service import DatabaseService
 from strava import models, schemas
 
@@ -17,14 +18,13 @@ class StreamKeys(Enum):
     HEARTRATE = "heartrate"
 
 
-class StravaAPIService:
+class StravaAPIService(APIService):
     user_info: schemas.StravaUserInfo
-    db_service: DatabaseService
 
-    def __init__(self, user_info: schemas.StravaUserInfo, db_service: DatabaseService):
-        self.user_info = user_info
-        self.db_service = db_service
-        self.check_auth()
+    def __init__(
+        self, user_info: schemas.StravaUserInfo, db_service: DatabaseService
+    ) -> None:
+        super().__init__(user_info=user_info, db_service=db_service)
 
     def check_auth(self):
         if self.user_info.expires_at > datetime.now():

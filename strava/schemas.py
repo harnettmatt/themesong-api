@@ -5,6 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from api_utils.schemas import APIUserInfo
 from id_base_model.schemas import IntIDBaseModel
 from settings import ENV_VARS
 
@@ -51,7 +52,7 @@ class StravaAthlete(IntIDBaseModel):
     # TODO: what other attributes should i load in
 
 
-class StravaAuth(BaseModel):
+class StravaAuth(APIUserInfo):
     # token_type: str
     expires_at: datetime
     # expires_in: timedelta
