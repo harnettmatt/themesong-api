@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from api_utils.schemas import APIUserInfo, RequestGrantType
+from api_utils.schemas import APITokenRequest, APIUserInfo
 from id_base_model.schemas import IntIDBaseModel
 from settings import ENV_VARS
 
@@ -21,7 +21,7 @@ class StravaObjectType(Enum):
     ATHLETE = "athlete"
 
 
-class StravaStreamKeys(Enum):
+class StreamKeys(Enum):
     TIME = "time"
     HEARTRATE = "heartrate"
 
@@ -36,13 +36,9 @@ class StravaWebhookInput(BaseModel):
     updates: Optional[dict] = None  # TODO: not sure if this is the right type
 
 
-class StravaOAuthTokenRequest(BaseModel):
+class StravaTokenRequest(APITokenRequest):
     client_id: int = ENV_VARS.STRAVA_CLIENT_ID
     client_secret: str = ENV_VARS.STRAVA_CLIENT_SECRET
-    # TODO: set this based on the code and refresh token
-    grant_type: RequestGrantType
-    code: Optional[str] = None
-    refresh_token: Optional[str] = None
 
 
 class StravaAthlete(IntIDBaseModel):

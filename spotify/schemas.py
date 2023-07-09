@@ -1,18 +1,21 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
-from api_utils.schemas import APIUserInfo, RequestGrantType
+from api_utils.schemas import APITokenRequest, APIUserInfo
 from id_base_model.schemas import StrIDBaseModel
+from settings import ENV_VARS
 
 
-class SpotifyTokenRequest(BaseModel):
-    grant_type: RequestGrantType
-    # TODO: set this based on the code and refresh token
+class SpotifyTokenRequest(APITokenRequest):
     redirect_uri: Optional[str] = None
-    refresh_token: Optional[str] = None
-    code: Optional[str] = None
+
+    @validator("redirect_uri", always=True)
+    def validate_redirect_uri(cls, v, values):
+        if values.get("code"):
+            return f"{ENV_VARS.HOST}/spotify/authorization"
+        return None
 
 
 class SpotifyAuth(APIUserInfo):

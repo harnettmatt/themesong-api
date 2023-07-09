@@ -4,6 +4,7 @@ from typing import List, Optional
 import requests
 from requests import Response
 
+from api_utils.schemas import RequestGrantType
 from api_utils.service import APIService
 from database.database_service import DatabaseService
 from strava import models, schemas
@@ -38,8 +39,8 @@ class StravaAPIService(APIService):
     def exchange_code(code: str) -> schemas.StravaOAuthTokenResponse:
         response: Response = requests.post(
             STRAVA_TOKEN_URL,
-            params=schemas.StravaOAuthTokenRequest(
-                grant_type=schemas.RequestGrantType.AUTHORIZATION_CODE,
+            params=schemas.StravaTokenRequest(
+                grant_type=RequestGrantType.AUTHORIZATION_CODE,
                 code=code,
             ).dict(),
         )
@@ -48,8 +49,8 @@ class StravaAPIService(APIService):
     def refresh_token(self) -> schemas.StravaAuth:
         response: Response = requests.post(
             STRAVA_TOKEN_URL,
-            params=schemas.StravaOAuthTokenRequest(
-                grant_type=schemas.RequestGrantType.REFRESH_TOKEN,
+            params=schemas.StravaTokenRequest(
+                grant_type=RequestGrantType.REFRESH_TOKEN,
                 refresh_token=self.user_info.refresh_token,
             ).dict(),
         )
@@ -74,7 +75,7 @@ class StravaAPIService(APIService):
     def get_stream_for_activity(
         self,
         id: int,
-        stream_keys: List[schemas.StravaStreamKeys],
+        stream_keys: List[schemas.StreamKeys],
         key_by_type: bool = True,
     ) -> schemas.StravaActivityStream:
         stream_keys_str = ",".join([key.value for key in stream_keys])
