@@ -20,6 +20,11 @@ class StravaObjectType(Enum):
     ATHLETE = "athlete"
 
 
+class StravaOAuthTokenRequestGrantType(Enum):
+    AUTHORIZATION_CODE = "authorization_code"
+    REFRESH_TOKEN = "refresh_token"
+
+
 class StravaWebhookInput(BaseModel):
     aspect_type: StravaAspectType
     event_time: datetime
@@ -33,8 +38,10 @@ class StravaWebhookInput(BaseModel):
 class StravaOAuthTokenRequest(BaseModel):
     client_id: int = ENV_VARS.STRAVA_CLIENT_ID
     client_secret: str = ENV_VARS.STRAVA_CLIENT_SECRET
-    code: str
-    grant_type: str = "authorization_code"
+    # TODO: set this based on the code and refresh token
+    grant_type: StravaOAuthTokenRequestGrantType
+    code: Optional[str] = None
+    refresh_token: Optional[str] = None
 
 
 class StravaAthlete(IntIDBaseModel):

@@ -62,14 +62,10 @@ async def receive_event(
         or request_body.aspect_type == StravaAspectType.CREATE
     ) and request_body.object_type == StravaObjectType.ACTIVITY:
         user = db_service.get(id=request_body.owner_id, model_type=User)
-        # TODO: create a strava service for this that handles token refreshing, headers, and prefixes better
-        # TODO: we might want to just disable mypy entirely because of this interaction with sqlalchemy.
-        #       mypy treats all non-id fields as optional which causes issues with statements like these
-        if user.strava_user_info.expires_at <= datetime.utcnow():  # type: ignore
-            # TODO: refresh token
-            pass
 
-        strava_api_service = StravaAPIService(user.strava_user_info.access_token)
+        strava_api_service = StravaAPIService(
+            StravaUserInfoSchema.from_orm(user.strava_info), db_service=db_service
+        )
         activity = strava_api_service.get_activity(request_body.object_id)
         activity_stream = strava_api_service.get_stream_for_activity(
             id=activity.id, stream_keys=[StreamKeys.TIME, StreamKeys.HEARTRATE]
