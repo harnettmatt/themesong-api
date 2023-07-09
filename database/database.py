@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from database import base  # noqa
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from persistable.models import Base
 
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@0.0.0.0:5432/postgres"

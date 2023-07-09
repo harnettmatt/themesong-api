@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from auth.utils import get_current_user_id
 from database.database import get_session
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from user import models, schemas
 
 ROUTER = APIRouter()

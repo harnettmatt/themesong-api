@@ -4,7 +4,7 @@ from typing import Optional
 from requests import Response
 
 from api_utils.schemas import APIUserInfo
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 
 
 class APIService:

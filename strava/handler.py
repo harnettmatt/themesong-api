@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from spotify.schemas import SpotifyUserInfo
 from spotify.service import SpotifyAPIService, SpotifyService
 from strava import schemas

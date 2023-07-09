@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 
 from database.database import get_db_service
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from spotify import models, schemas
 from spotify.client import SpotifyAPIService
 

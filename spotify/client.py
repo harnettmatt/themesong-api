@@ -6,7 +6,7 @@ from requests import Response
 
 from api_utils.schemas import RequestGrantType
 from api_utils.service import APIService
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from settings import ENV_VARS
 from spotify import schemas
 

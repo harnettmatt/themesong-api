@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 import utils
 from database.database import get_db_service
-from database.database_service import DatabaseService
+from database.service import DatabaseService
 from settings import ENV_VARS
 from strava.client import StravaAPIService
 from strava.handler import StravaWebhookHandler
