@@ -1,18 +1,17 @@
 """Routing handler for /strava"""
-from datetime import timedelta
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 import utils
 from database.database import get_db_service
 from database.database_service import DatabaseService
 from settings import ENV_VARS
-from spotify.service import SpotifyAPIService
+from spotify.schemas import SpotifyUserInfo
+from spotify.service import SpotifyAPIService, SpotifyService
 from strava.models import StravaUserInfo as StravaUserInfoModel
 from strava.schemas import StravaAspectType, StravaObjectType
 from strava.schemas import StravaUserInfo as StravaUserInfoSchema
 from strava.schemas import StravaWebhookInput
-from strava.service import StravaAPIService, StreamKeys
+from strava.service import StravaAPIService, StravaService
 from user.models import User
 from user.schemas import UserCreate
 
@@ -58,44 +57,36 @@ async def receive_event(
         request_body.aspect_type == StravaAspectType.UPDATE
         or request_body.aspect_type == StravaAspectType.CREATE
     ) and request_body.object_type == StravaObjectType.ACTIVITY:
+        # get user
         user = db_service.get(id=request_body.owner_id, model_type=User)
 
+        # setup services
         strava_api_service = StravaAPIService(
             StravaUserInfoSchema.from_orm(user.strava_info), db_service=db_service
         )
-        activity = strava_api_service.get_activity(request_body.object_id)
-        activity_stream = strava_api_service.get_stream_for_activity(
-            id=activity.id, stream_keys=[StreamKeys.TIME, StreamKeys.HEARTRATE]
+        strava_service = StravaService(api=strava_api_service)
+        spotify_api_service = SpotifyAPIService(
+            user_info=SpotifyUserInfo.from_orm(user.spotify_user_info),
+            db_service=db_service,
         )
-        max_hr_time_mark = activity_stream.get_max_heartrate_time_mark()
-        if max_hr_time_mark is None:
+        spotify_service = SpotifyService(api=spotify_api_service)
+
+        # get activity and max hr
+        activity = strava_service.api.get_activity(request_body.object_id)
+        max_hr_date_time = strava_service.get_max_hr_date_time_for_activity(activity)
+        if max_hr_date_time is None:
             print("could not find max hr")
             return
 
-        max_hr_date_time = activity.start_date + max_hr_time_mark
-
-        spotify_api_service = SpotifyAPIService(
-            user_info=user.spotify_user_info, db_service=db_service
-        )
-        user_history = spotify_api_service.get_user_history(
-            after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
-        )
-        track = user_history.get_spotify_track_for_datetime(
-            max_hr_date_time=max_hr_date_time
-        )
+        # get track
+        track = spotify_service.get_track_for_datetime(max_hr_date_time)
         if track is None:
-            # TODO: try and atempt with the next highest heart rate
             print("could not find track")
             return
 
-        strava_api_service.update_activity(
-            id=activity.id,
-            data={
-                "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
-            },
-        )
+        # update activity
+        strava_service.update_activity_with_track(activity, track)
         # TODO: do i need to return something here. Check Strava docs if this doesn't work as is
-
     else:
         print("getting some different event")
     return
