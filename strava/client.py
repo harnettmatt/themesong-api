@@ -9,8 +9,8 @@ from api_utils.service import APIService
 from database.database_service import DatabaseService
 from strava import models, schemas
 
-STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token"
-STAVA_API_PREFIX = "https://www.strava.com/api/v3"
+TOKEN_URL = "https://www.strava.com/oauth/token"
+API_PREFIX = "https://www.strava.com/api/v3"
 
 
 class StravaAPIService(APIService):
@@ -38,7 +38,7 @@ class StravaAPIService(APIService):
     @staticmethod
     def exchange_code(code: str) -> schemas.StravaOAuthTokenResponse:
         response: Response = requests.post(
-            STRAVA_TOKEN_URL,
+            TOKEN_URL,
             params=schemas.StravaTokenRequest(
                 grant_type=RequestGrantType.AUTHORIZATION_CODE,
                 code=code,
@@ -48,7 +48,7 @@ class StravaAPIService(APIService):
 
     def refresh_token(self) -> schemas.StravaAuth:
         response: Response = requests.post(
-            STRAVA_TOKEN_URL,
+            TOKEN_URL,
             params=schemas.StravaTokenRequest(
                 grant_type=RequestGrantType.REFRESH_TOKEN,
                 refresh_token=self.user_info.refresh_token,
@@ -69,19 +69,19 @@ class StravaAPIService(APIService):
         return response
 
     def get_activity(self, id: int) -> schemas.StravaActivity:
-        response = self._execute(requests.get, f"{STAVA_API_PREFIX}/activities/{id}")
+        response = self._execute(requests.get, f"{API_PREFIX}/activities/{id}")
         return schemas.StravaActivity(**response.json())
 
     def get_stream_for_activity(
         self,
         id: int,
-        stream_keys: List[schemas.StreamKeys],
+        stream_keys: List[schemas.StravaStreamKeys],
         key_by_type: bool = True,
     ) -> schemas.StravaActivityStream:
         stream_keys_str = ",".join([key.value for key in stream_keys])
         response = self._execute(
             requests.get,
-            f"{STAVA_API_PREFIX}/activities/{id}/streams",
+            f"{API_PREFIX}/activities/{id}/streams",
             params={"keys": stream_keys_str, "key_by_type": str(key_by_type).lower()},
         )
         return schemas.StravaActivityStream(**response.json())
@@ -89,6 +89,6 @@ class StravaAPIService(APIService):
     def update_activity(self, id: int, data: dict):
         self._execute(
             requests.put,
-            f"{STAVA_API_PREFIX}/activities/{id}",
+            f"{API_PREFIX}/activities/{id}",
             data=data,
         )

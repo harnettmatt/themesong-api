@@ -21,7 +21,7 @@ class StravaObjectType(Enum):
     ATHLETE = "athlete"
 
 
-class StreamKeys(Enum):
+class StravaStreamKeys(Enum):
     TIME = "time"
     HEARTRATE = "heartrate"
 
