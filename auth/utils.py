@@ -55,7 +55,7 @@ def verify_token(token=Depends(token_auth_scheme), config=Depends(get_config)) -
 
 def get_current_user_id(
     token=Depends(token_auth_scheme), config=Depends(get_config)
-) -> str:
+) -> int:
     response = verify_token(token=token, config=config)
     if response.get("status"):
         raise HTTPException(

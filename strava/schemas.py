@@ -21,6 +21,11 @@ class StravaObjectType(Enum):
     ATHLETE = "athlete"
 
 
+class StravaStreamKeys(Enum):
+    TIME = "time"
+    HEARTRATE = "heartrate"
+
+
 class StravaWebhookInput(BaseModel):
     aspect_type: StravaAspectType
     event_time: datetime
@@ -44,7 +49,6 @@ class StravaAthlete(IntIDBaseModel):
     username: str
     firstname: str
     lastname: str
-    # TODO: what other attributes should i load in
 
 
 class StravaAuth(APIUserInfo):

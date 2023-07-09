@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from database.database import get_db_service
 from database.database_service import DatabaseService
 from spotify import models, schemas
-from spotify.service import SpotifyAPIService
+from spotify.client import SpotifyAPIService
 
 ROUTER = APIRouter()
 
@@ -31,9 +31,8 @@ def authorization(
       state: state
     }));
     """
-    # TODO: SpotifyAPIService could be a dependency?
     token_response = SpotifyAPIService.exchange_code(code)
-    user_response = SpotifyAPIService(token_response.access_token).get_user()
+    user_response = SpotifyAPIService.get_user(token_response.access_token)
 
     # TODO: need to figure out how to get user id here. Hardcoding for now
     #       maybe its None at the start and then associated later?

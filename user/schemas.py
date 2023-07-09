@@ -11,7 +11,6 @@ class User(IntIDBaseModel):
     strava_user_info: StravaUserInfo
 
     class Config:
-        # TODO: should this be moved to IDBaseModel
         orm_mode = True
 
 
