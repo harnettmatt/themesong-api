@@ -1,7 +1,6 @@
 """Module responsible for interacting with db via sqlalchemy"""
 from typing import Type, Union
 
-from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -28,11 +27,7 @@ class DatabaseService:
         """
         Gets object from db for a given model and id
         """
-        user = self.session.query(model_type).get(id)
-        if user is None:
-            raise HTTPException(404, "Not Found")
-
-        return user
+        return self.session.query(model_type).get(id)
 
     def all(self, model_type: Type[Persistable], skip: int = 0, limit: int = 100):
         """
@@ -56,6 +51,9 @@ class DatabaseService:
         Deletes object from db for a given model and id
         """
         model_object = self.get(id=id, model_type=model_type)
+        if model_object is None:
+            return None
+
         self.session.delete(model_object)
         self.session.commit()
 
@@ -66,6 +64,9 @@ class DatabaseService:
         Gets object from db, merges input_schema with db object, update db object
         """
         model_object = self.get(id=id, model_type=model_type)
+        if model_object is None:
+            return None
+
         updated_model_object = self._update_model_object_from_input(
             input=input_schema, model_object=model_object
         )

@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from database.database_service import DatabaseService
 from spotify.schemas import SpotifyUserInfo
 from spotify.service import SpotifyAPIService, SpotifyService
@@ -31,10 +33,12 @@ class StravaWebhookHandler:
     def _handle_activity_update_and_create(self):
         # get user
         user = self.db_service.get(id=self.event.owner_id, model_type=User)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
 
         # setup services
         strava_api_service = StravaAPIService(
-            schemas.StravaUserInfo.from_orm(user.strava_info),
+            schemas.StravaUserInfo.from_orm(user.strava_user_info),
             db_service=self.db_service,
         )
         strava_service = StravaService(api=strava_api_service)
