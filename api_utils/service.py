@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Optional
 
-from fastapi import Response
+from requests import Response
 
 from api_utils.schemas import APIUserInfo
 from database.database_service import DatabaseService

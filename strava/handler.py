@@ -1,7 +1,5 @@
 """Routing handler for /strava"""
-from datetime import datetime, timedelta
-from enum import Enum
-from typing import Optional
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
@@ -9,7 +7,6 @@ import utils
 from database.database import get_db_service
 from database.database_service import DatabaseService
 from settings import ENV_VARS
-from spotify.schemas import SpotifyTrack
 from spotify.service import SpotifyAPIService
 from strava.models import StravaUserInfo as StravaUserInfoModel
 from strava.schemas import StravaAspectType, StravaObjectType
@@ -72,17 +69,25 @@ async def receive_event(
         )
         max_hr_time_mark = activity_stream.get_max_heartrate_time_mark()
         if max_hr_time_mark is None:
-            print("could not find track")
+            print("could not find max hr")
             return
 
         max_hr_date_time = activity.start_date + max_hr_time_mark
-        track = get_spotify_track_for_datetime(
-            user=user, max_hr_date_time=max_hr_date_time
+
+        spotify_api_service = SpotifyAPIService(
+            user_info=user.spotify_user_info, db_service=db_service
+        )
+        user_history = spotify_api_service.get_user_history(
+            after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
+        )
+        track = user_history.get_spotify_track_for_datetime(
+            max_hr_date_time=max_hr_date_time
         )
         if track is None:
             # TODO: try and atempt with the next highest heart rate
             print("could not find track")
             return
+
         strava_api_service.update_activity(
             id=activity.id,
             data={
@@ -94,40 +99,6 @@ async def receive_event(
     else:
         print("getting some different event")
     return
-
-
-# TODO: move this into a service
-class SearchDirection(Enum):
-    EARLIER = "earlier"
-    LATER = "later"
-
-
-# TODO: move this into a service
-def get_spotify_track_for_datetime(
-    user: User, max_hr_date_time: datetime
-) -> Optional[SpotifyTrack]:
-    user_history_response = SpotifyAPIService(
-        token=user.spotify_user_info.access_token
-    ).get_user_history(
-        after=max_hr_date_time - timedelta(minutes=30)  # type: ignore
-    )
-    user_history_response.items.reverse()
-    for play_history_item in user_history_response.items:
-        end_time = play_history_item.played_at
-        start_time = end_time - timedelta(
-            milliseconds=play_history_item.track.duration_ms
-        )
-        # max_hr_date_time falls within track time
-        if start_time <= max_hr_date_time and max_hr_date_time <= end_time:
-            return play_history_item.track
-        # max_hr_date_time is later than the track
-        elif start_time < max_hr_date_time and end_time < max_hr_date_time:
-            continue
-        # max_hr_date_time is earlier than the track
-        else:
-            raise Exception("Didn't search for tracks far enough back in time")
-
-    return None
 
 
 @ROUTER.get("/webhook", status_code=200)

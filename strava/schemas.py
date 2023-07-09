@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from api_utils.schemas import APIUserInfo
+from api_utils.schemas import APIUserInfo, RequestGrantType
 from id_base_model.schemas import IntIDBaseModel
 from settings import ENV_VARS
 
@@ -19,11 +19,6 @@ class StravaAspectType(Enum):
 class StravaObjectType(Enum):
     ACTIVITY = "activity"
     ATHLETE = "athlete"
-
-
-class StravaOAuthTokenRequestGrantType(Enum):
-    AUTHORIZATION_CODE = "authorization_code"
-    REFRESH_TOKEN = "refresh_token"
 
 
 class StravaWebhookInput(BaseModel):
@@ -40,7 +35,7 @@ class StravaOAuthTokenRequest(BaseModel):
     client_id: int = ENV_VARS.STRAVA_CLIENT_ID
     client_secret: str = ENV_VARS.STRAVA_CLIENT_SECRET
     # TODO: set this based on the code and refresh token
-    grant_type: StravaOAuthTokenRequestGrantType
+    grant_type: RequestGrantType
     code: Optional[str] = None
     refresh_token: Optional[str] = None
 
@@ -56,8 +51,6 @@ class StravaAuth(APIUserInfo):
     # token_type: str
     expires_at: datetime
     # expires_in: timedelta
-    refresh_token: str
-    access_token: str
 
 
 class StravaUserInfo(IntIDBaseModel, StravaAuth):

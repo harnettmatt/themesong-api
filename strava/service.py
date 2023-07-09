@@ -45,7 +45,7 @@ class StravaAPIService(APIService):
         response: Response = requests.post(
             STRAVA_TOKEN_URL,
             params=schemas.StravaOAuthTokenRequest(
-                grant_type=schemas.StravaOAuthTokenRequestGrantType.AUTHORIZATION_CODE,
+                grant_type=schemas.RequestGrantType.AUTHORIZATION_CODE,
                 code=code,
             ).dict(),
         )
@@ -55,7 +55,7 @@ class StravaAPIService(APIService):
         response: Response = requests.post(
             STRAVA_TOKEN_URL,
             params=schemas.StravaOAuthTokenRequest(
-                grant_type=schemas.StravaOAuthTokenRequestGrantType.REFRESH_TOKEN,
+                grant_type=schemas.RequestGrantType.REFRESH_TOKEN,
                 refresh_token=self.user_info.refresh_token,
             ).dict(),
         )
