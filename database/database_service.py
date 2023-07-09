@@ -1,5 +1,5 @@
 """Module responsible for interacting with db via sqlalchemy"""
-from typing import Type, Union
+from typing import Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -9,6 +9,7 @@ from persistable.models import Persistable
 
 # User id is defined as a string and all other ids are autoincrementing
 ID = Union[str, int]
+P = TypeVar("P", bound=Persistable)
 
 
 class DatabaseService:
@@ -21,21 +22,19 @@ class DatabaseService:
     def __init__(self, session: Session):
         self.session = session
 
-    # TODO: we should return a generic here that is the same type as model_type
-    #       should also consider setting this as self.model_type
-    def get(self, id: ID, model_type: Type[Persistable]):
+    def get(self, id: ID, model_type: Type[P]) -> Optional[P]:
         """
         Gets object from db for a given model and id
         """
         return self.session.query(model_type).get(id)
 
-    def all(self, model_type: Type[Persistable], skip: int = 0, limit: int = 100):
+    def all(self, model_type: Type[P], skip: int = 0, limit: int = 100) -> list[P]:
         """
         Gets all objects from db for a given model and optional limiting
         """
         return self.session.query(model_type).offset(skip).limit(limit).all()
 
-    def create(self, input_schema: BaseModel, model_type: Type[Persistable]):
+    def create(self, input_schema: BaseModel, model_type: Type[P]):
         """
         Creates object in db for a given pydantic input schema and model
         """
@@ -46,7 +45,7 @@ class DatabaseService:
 
         return model_object
 
-    def delete(self, id: ID, model_type: Type[Persistable]):
+    def delete(self, id: ID, model_type: Type[P]) -> Optional[P]:
         """
         Deletes object from db for a given model and id
         """
@@ -59,7 +58,9 @@ class DatabaseService:
 
         return model_object
 
-    def update(self, id: ID, input_schema: BaseModel, model_type: Type[Persistable]):
+    def update(
+        self, id: ID, input_schema: BaseModel, model_type: Type[P]
+    ) -> Optional[P]:
         """
         Gets object from db, merges input_schema with db object, update db object
         """
@@ -76,7 +77,7 @@ class DatabaseService:
 
         return updated_model_object
 
-    def merge(self, input_schema: BaseModel, model_type: Type[Persistable]):
+    def merge(self, input_schema: BaseModel, model_type: Type[P]) -> P:
         """
         Updates object if exists in db, otherwise creates db object
         """
@@ -88,9 +89,7 @@ class DatabaseService:
         return model_object
 
     @classmethod
-    def _update_model_object_from_input(
-        cls, input: BaseModel, model_object: Persistable
-    ) -> Persistable:
+    def _update_model_object_from_input(cls, input: BaseModel, model_object: P) -> P:
         """
         Converts input and model_object to dicts and updates model_object
         """
