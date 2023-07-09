@@ -59,4 +59,3 @@ class StravaWebhookHandler:
 
         # update activity
         strava_service.update_activity_with_track(activity, track)
-        # TODO: do i need to return something here. Check Strava docs if this doesn't work as is

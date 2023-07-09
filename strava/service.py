@@ -31,7 +31,7 @@ class StravaService:
     def update_activity_with_track(
         self, activity: schemas.StravaActivity, track: SpotifyTrack
     ):
-        # TODO: add logic to cherck existing description to see if it already contains the track
+        # TODO: add logic to check existing description to see if it already contains the track
         self.api.update_activity(
             id=activity.id,
             data={

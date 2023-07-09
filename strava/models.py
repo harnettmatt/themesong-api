@@ -19,5 +19,5 @@ class StravaUserInfo(Persistable):
     expires_at = Column(DateTime)
 
     # relationships
-    # TODO: figure out why mypy doesn't like this
+    # FIXME: figure out why mypy doesn't like this
     user = relationship("User", back_populates="strava_user_info")  # type: ignore

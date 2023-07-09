@@ -4,6 +4,7 @@ from datetime import datetime
 import requests
 from requests import Response
 
+from api_utils.schemas import RequestGrantType
 from api_utils.service import APIService
 from database.database_service import DatabaseService
 from settings import ENV_VARS
@@ -34,7 +35,7 @@ class SpotifyAPIService(APIService):
         response: Response = requests.post(
             SPOTIFY_TOKEN_URL,
             data=schemas.SpotifyTokenRequest(
-                grant_type=schemas.RequestGrantType.REFRESH_TOKEN,
+                grant_type=RequestGrantType.REFRESH_TOKEN,
                 refresh_token=self.user_info.refresh_token,
             ).dict(),
             headers={"Authorization": f"Basic {self.get_encoded_token()}"},
@@ -51,7 +52,7 @@ class SpotifyAPIService(APIService):
         response: Response = requests.post(
             SPOTIFY_TOKEN_URL,
             data=schemas.SpotifyTokenRequest(
-                grant_type=schemas.RequestGrantType.AUTHORIZATION_CODE,
+                grant_type=RequestGrantType.AUTHORIZATION_CODE,
                 redirect_uri=f"{ENV_VARS.HOST}/spotify/authorization",
                 code=code,
             ).dict(),
@@ -60,7 +61,7 @@ class SpotifyAPIService(APIService):
 
         return schemas.SpotifyTokenResponse(**response.json())
 
-    # TODO: if we use this function somewhere else it will need to be refactored to have refresh token logic
+    # if we use this function somewhere else it will need to be refactored to have refresh token logic
     @classmethod
     def get_user(cls, access_token: str) -> schemas.SpotifyUserResponse:
         response: Response = requests.get(

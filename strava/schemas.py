@@ -33,7 +33,7 @@ class StravaWebhookInput(BaseModel):
     object_type: StravaObjectType
     owner_id: int  # athlete id
     subscription_id: int
-    updates: Optional[dict] = None  # TODO: not sure if this is the right type
+    updates: Optional[dict] = None  # FIXME: not sure if this is the right type
 
 
 class StravaTokenRequest(APITokenRequest):
@@ -65,7 +65,6 @@ class StravaOAuthTokenResponse(StravaAuth):
 
 
 class StravaActivity(BaseModel):
-    # TODO: write a property field that calculated the end
     id: int
     start_date: datetime
     elapsed_time: int

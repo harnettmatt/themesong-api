@@ -18,7 +18,7 @@ class User(Persistable):
     id = Column(Integer, primary_key=True, index=True)
 
     # relationships
-    # TODO: figure out why mypy doesn't like this
+    # FIXME: figure out why mypy doesn't like this
     strava_user_info = relationship(StravaUserInfo, back_populates="user", uselist=False)  # type: ignore
     spotify_user_info = relationship(
         SpotifyUserInfo, back_populates="user", uselist=False

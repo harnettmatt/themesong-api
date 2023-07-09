@@ -34,7 +34,7 @@ def authorization(
     token_response = SpotifyAPIService.exchange_code(code)
     user_response = SpotifyAPIService.get_user(token_response.access_token)
 
-    # TODO: need to figure out how to get user id here. Hardcoding for now
+    # FIXME: need to figure out how to get user id here. Hardcoding for now
     #       maybe its None at the start and then associated later?
     #       maybe the creation of the userinfo object needs to happen in a separate request from the client
     spotify_user_info = schemas.SpotifyUserInfo(
