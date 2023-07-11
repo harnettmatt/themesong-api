@@ -36,7 +36,7 @@ class StravaAPIService(APIService):
         )
 
     @staticmethod
-    def exchange_code(code: str) -> schemas.StravaOAuthTokenResponse:
+    def exchange_code(code: str) -> schemas.StravaTokenResponse:
         response: Response = requests.post(
             TOKEN_URL,
             params=schemas.StravaTokenRequest(
@@ -44,7 +44,7 @@ class StravaAPIService(APIService):
                 code=code,
             ).dict(),
         )
-        return schemas.StravaOAuthTokenResponse(**response.json())
+        return schemas.StravaTokenResponse(**response.json())
 
     def refresh_token(self) -> schemas.StravaAuth:
         response: Response = requests.post(

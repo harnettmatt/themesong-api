@@ -60,7 +60,7 @@ class StravaUserInfo(IntIDBaseModel, StravaAuth):
         orm_mode = True
 
 
-class StravaOAuthTokenResponse(StravaAuth):
+class StravaTokenResponse(StravaAuth):
     athlete: StravaAthlete
 
 

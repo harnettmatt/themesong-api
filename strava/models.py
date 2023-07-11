@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from persistable.models import Persistable
@@ -16,7 +16,7 @@ class StravaUserInfo(Persistable):
     user_id = Column(Integer, ForeignKey("users.id"))
     access_token = Column(String)
     refresh_token = Column(String)
-    expires_at = Column(DateTime)
+    expires_at = Column(String)
 
     # relationships
     # FIXME: figure out why mypy doesn't like this
