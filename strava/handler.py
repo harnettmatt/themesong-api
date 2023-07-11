@@ -23,12 +23,13 @@ class StravaWebhookHandler:
         if self.event.object_type != schemas.StravaObjectType.ACTIVITY:
             print("object type not supported")
             return
-        if (
-            self.event.aspect_type == schemas.StravaAspectType.UPDATE
-            or self.event.aspect_type == schemas.StravaAspectType.CREATE
+        if self.event.aspect_type not in (
+            schemas.StravaAspectType.UPDATE,
+            schemas.StravaAspectType.CREATE,
         ):
-            return self._handle_activity_update_and_create()
-        print("aspect type not supported")
+            print("aspect type not supported")
+            return
+        return self._handle_activity_update_and_create()
 
     def _handle_activity_update_and_create(self):
         # get user
@@ -63,3 +64,5 @@ class StravaWebhookHandler:
 
         # update activity
         strava_service.update_activity_with_track(activity, track)
+
+        return track

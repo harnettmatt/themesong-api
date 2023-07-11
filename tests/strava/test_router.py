@@ -1,5 +1,14 @@
 from datetime import datetime
 
+from spotify.client import SpotifyAPIService
+from spotify.models import SpotifyUserInfo
+from spotify.schemas import (
+    SpotifyPlayHistoryObject,
+    SpotifyRecentlyPlayedResponse,
+    SpotifyTrack,
+)
+from strava import schemas
+from strava.client import StravaAPIService
 from strava.models import StravaUserInfo
 from strava.schemas import StravaAthlete, StravaTokenResponse
 from user.models import User
@@ -71,3 +80,84 @@ def test_verify_webhook_403(test_client):
     # Assert
     assert response.status_code == 403
     assert response.json() == {"detail": "Forbidden"}
+
+
+def test_receive_event(test_client, mocker, local_session):
+    """
+    Test that the receive event endpoint returns a 200 status code
+    """
+    # Arrange
+    # seed users in db
+    user = User(id=123)
+    strava_user_info = StravaUserInfo(
+        id=123,
+        user_id=123,
+        access_token="123",
+        refresh_token="123",
+        expires_at=datetime(2023, 7, 9, 0, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%S"),
+    )
+    spotify_user_info = SpotifyUserInfo(
+        id=123,
+        user_id=123,
+        access_token="123",
+        refresh_token="123",
+        expires_in=3600,
+    )
+    local_session.add_all([user, strava_user_info, spotify_user_info])
+    local_session.commit()
+    # mock strava api service
+    strava_activity = schemas.StravaActivity(
+        id=123,
+        start_date=datetime(2021, 7, 9, 0, 0, 0, 0),
+        description="",
+    )
+    mocker.patch.object(
+        StravaAPIService,
+        StravaAPIService.get_activity.__name__,
+        return_value=strava_activity,
+    )
+    strava_activity_stream = schemas.StravaActivityStream(
+        heartrate=schemas.StravaActivityStreamData(data=[1, 2, 3]),
+        time=schemas.StravaActivityStreamData(data=[1, 2, 3]),
+    )
+    mocker.patch.object(
+        StravaAPIService,
+        StravaAPIService.get_stream_for_activity.__name__,
+        return_value=strava_activity_stream,
+    )
+    mocker.patch.object(StravaAPIService, StravaAPIService.update_activity.__name__)
+    # mock spotify api service
+    recently_played = SpotifyRecentlyPlayedResponse(
+        next="",
+        items=[
+            SpotifyPlayHistoryObject(
+                played_at=datetime(2021, 7, 9, 0, 0, 5, 0),
+                track=SpotifyTrack(
+                    id="123", name="test", duration_ms=10000, href="test"
+                ),
+            )
+        ],
+    )
+    mocker.patch.object(
+        SpotifyAPIService,
+        SpotifyAPIService.get_recenty_played.__name__,
+        return_value=recently_played,
+    )
+    # Act
+    response = test_client.post(
+        "/strava/webhook",
+        json={
+            "aspect_type": "create",
+            "object_id": 123,
+            "object_type": "activity",
+            "owner_id": 123,
+        },
+    )
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": "123",
+        "name": "test",
+        "duration_ms": 10000,
+        "href": "test",
+    }

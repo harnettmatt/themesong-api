@@ -5,6 +5,7 @@ import utils
 from database.database import get_db_service
 from database.service import DatabaseService
 from settings import ENV_VARS
+from spotify.schemas import SpotifyTrack
 from strava.client import StravaAPIService
 from strava.handler import StravaWebhookHandler
 from strava.models import StravaUserInfo as StravaUserInfoModel
@@ -56,7 +57,7 @@ def verify_webhook(request: Request):
     raise HTTPException(403)
 
 
-@ROUTER.post("/webhook", status_code=200)
+@ROUTER.post("/webhook", status_code=200, response_model=SpotifyTrack)
 def receive_event(
     request_body: StravaWebhookInput,
     db_service: DatabaseService = Depends(get_db_service),

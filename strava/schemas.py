@@ -28,12 +28,9 @@ class StravaStreamKeys(Enum):
 
 class StravaWebhookInput(BaseModel):
     aspect_type: StravaAspectType
-    event_time: datetime
     object_id: int  # activity id or athelete id depending on object_type
     object_type: StravaObjectType
     owner_id: int  # athlete id
-    subscription_id: int
-    updates: Optional[dict] = None  # FIXME: not sure if this is the right type
 
 
 class StravaTokenRequest(APITokenRequest):
@@ -67,7 +64,6 @@ class StravaTokenResponse(StravaAuth):
 class StravaActivity(BaseModel):
     id: int
     start_date: datetime
-    elapsed_time: int
     description: Optional[str]
 
 
@@ -79,19 +75,22 @@ class StravaActivityStream(BaseModel):
     heartrate: StravaActivityStreamData
     time: StravaActivityStreamData
 
-    def get_max_heartrate(self) -> Optional[float]:
+    def get_max_heartrate(self) -> Optional[tuple[int, float]]:
         if len(self.heartrate.data) == 0:
             return None
-        return max(self.heartrate.data)
+        max_heartrate = max(self.heartrate.data)
+        max_heartrate_index = self.heartrate.data.index(max_heartrate)
+
+        return max_heartrate_index, max_heartrate
 
     def get_max_heartrate_time_mark(self) -> Optional[timedelta]:
-        max_heartrate = self.get_max_heartrate()
-        if max_heartrate is None:
+        heart_rate_tuple = self.get_max_heartrate()
+        if heart_rate_tuple is None:
             return None
         if len(self.time.data) == 0:
             return None
 
-        max_heartrate_index = self.heartrate.data.index(max_heartrate)
-        seconds_elapsed = self.time.data[max_heartrate_index]
+        (index, _) = heart_rate_tuple
+        seconds_elapsed = self.time.data[index]
 
         return timedelta(seconds=seconds_elapsed)

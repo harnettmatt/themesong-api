@@ -70,7 +70,7 @@ class SpotifyAPIService(APIService):
         )
         return schemas.SpotifyUserResponse(**response.json())
 
-    def get_user_history(
+    def get_recenty_played(
         self, after: datetime, limit: int = 50
     ) -> schemas.SpotifyRecentlyPlayedResponse:
         after_milliseconds = int(after.timestamp() * 1000)

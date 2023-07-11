@@ -43,9 +43,7 @@ class SpotifyTrack(BaseModel):
     id: str
     duration_ms: int
     name: str
-    uri: str
     href: str  # link to the api to get more details on track
-    external_urls: SpotifyExternalUrls
 
 
 class SpotifyPlayHistoryObject(BaseModel):
