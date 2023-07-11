@@ -45,3 +45,29 @@ def test_authorization(test_client, mocker, local_session):
     assert strava_user_info.expires_at == datetime(2023, 7, 9, 0, 0, 0, 0).strftime(
         "%Y-%m-%dT%H:%M:%S"
     )
+
+
+def test_verify_webook(test_client, mocker):
+    """
+    Test that the verify webhook endpoint returns a 200 status code
+    """
+    # Arrange
+    mocker.patch("strava.router.ENV_VARS.STRAVA_WEBHOOK_TOKEN", "123")
+    # Act
+    response = test_client.get(
+        "/strava/webhook?hub.mode=subscribe&hub.verify_token=123&hub.challenge=456"
+    )
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == {"hub.challenge": "456"}
+
+
+def test_verify_webhook_403(test_client):
+    # Arrange
+    # Act
+    response = test_client.get(
+        "/strava/webhook?hub.mode=other&hub.verify_token=123&hub.challenge=456"
+    )
+    # Assert
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Forbidden"}
