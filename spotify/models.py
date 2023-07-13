@@ -21,3 +21,15 @@ class SpotifyUserInfo(Persistable):
     # relationships
     # FIXME: figure out why mypy doesn't like this
     user = relationship("User", back_populates="spotify_user_info")  # type: ignore
+
+
+class SpotifyAuthStateParam(Persistable):
+    """
+    SqlAlchemy model
+    """
+
+    __tablename__ = "spotify_auth_state_param"
+
+    # attributes
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))

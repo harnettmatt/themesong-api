@@ -1,8 +1,9 @@
 """Routing handler for /spotify"""
-from typing import Optional
+import random
+import string
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 
 from database.database import get_db_service
@@ -15,15 +16,20 @@ ROUTER = APIRouter()
 
 @ROUTER.get("/login")
 def login(
-    user_id: str,
+    user_id: int,
     db_service: DatabaseService = Depends(get_db_service),
 ):
     """
     TODO: replace user id with some oauth token
     Endpoint for logging in a user
     """
-    authorize_params = schemas.SpotifyAuthorizeParams()
-    # TODO: create dict with user id and generated uuid, persist, encode and pass in to url as states
+    state = "".join(random.choices(string.ascii_letters, k=16))
+    db_service.create(
+        schemas.SpotifyAuthStateParam(id=state, user_id=user_id),
+        models.SpotifyAuthStateParam,
+    )
+    authorize_params = schemas.SpotifyAuthorizeParams(state=state)
+
     return RedirectResponse(
         url=f"https://accounts.spotify.com/authorize?{urlencode(authorize_params.dict())}"
     )
@@ -32,7 +38,7 @@ def login(
 @ROUTER.get("/authorization", status_code=200)
 def authorization(
     code: str,
-    state: Optional[str],
+    state: str,
     db_service: DatabaseService = Depends(get_db_service),
 ):
     """
@@ -41,13 +47,15 @@ def authorization(
         - swapping token for bearer and refresh
         - persisting relevant user information to the db
     """
-    # TODO: decode state code and check against db
+    auth_state_param = db_service.get(id=state, model_type=models.SpotifyAuthStateParam)
+    if auth_state_param is None:
+        raise HTTPException(status_code=403, detail="Access Denied")
+    user_id = auth_state_param.user_id
     token_response = SpotifyAPIService.exchange_code(code)
     user_response = SpotifyAPIService.get_user(token_response.access_token)
 
-    # TODO: get user_id from state code
     spotify_user_info = schemas.SpotifyUserInfo(
-        user_id=42496487,
+        user_id=user_id,
         **token_response.dict(),
         **user_response.dict(),
     )

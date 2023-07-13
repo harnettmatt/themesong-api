@@ -27,7 +27,7 @@ def authorization(
         - swapping token for bearer and refresh
         - persisting relevant user information to the db
 
-    Auth url: http://www.strava.com/oauth/authorize?client_id=108820&response_type=code&redirect_uri=https://17dd-65-154-225-130.ngrok-free.app/strava/authorization&approval_prompt=force&scope=activity:read_all,activity:write
+    Auth url: http://www.strava.com/oauth/authorize?client_id=108820&response_type=code&redirect_uri=https://2182-76-126-88-162.ngrok-free.app/strava/authorization&approval_prompt=force&scope=activity:read_all,activity:write
     """
     # TODO: check to make sure the correct permissions are granted, is there a specific error code that needs to be returned if this is unsuccessful
     response = StravaAPIService.exchange_code(code)

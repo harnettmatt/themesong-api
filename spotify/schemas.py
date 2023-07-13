@@ -18,12 +18,17 @@ class SpotifyTokenRequest(APITokenRequest):
         return None
 
 
+class SpotifyAuthStateParam(BaseModel):
+    id: str
+    user_id: int
+
+
 class SpotifyAuthorizeParams(BaseModel):
     response_type: str = "code"
     client_id: str = ENV_VARS.SPOTIFY_CLIENT_ID
     scope: str = "user-read-private user-read-email user-read-recently-played"
     redirect_uri: str = f"{ENV_VARS.HOST}/spotify/authorization"
-    state: str = ""  # TODO: add state code to url for security
+    state: str
 
 
 class SpotifyAuth(APIUserInfo):
