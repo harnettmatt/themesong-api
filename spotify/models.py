@@ -1,5 +1,4 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
 
 from persistable.models import Persistable
 
@@ -17,10 +16,6 @@ class SpotifyUserInfo(Persistable):
     access_token = Column(String)
     refresh_token = Column(String)
     expires_in = Column(Integer)
-
-    # relationships
-    # FIXME: fix 1:1 relationship
-    user = relationship("User", back_populates="spotify_user_info")  # type: ignore
 
 
 class SpotifyAuthStateParam(Persistable):

@@ -24,7 +24,7 @@ class SpotifyAuthStateParam(StrIDBaseModel):
 
 class SpotifyAuthorizeParams(APIAuthorizeParams):
     client_id: str = ENV_VARS.SPOTIFY_CLIENT_ID
-    redirect_uri: str = f"{ENV_VARS.HOST}/spotQify/authorization"
+    redirect_uri: str = f"{ENV_VARS.HOST}/spotify/authorization"
     scope: str = "user-read-private user-read-email user-read-recently-played"
 
 
