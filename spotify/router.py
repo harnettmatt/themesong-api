@@ -51,6 +51,8 @@ def authorization(
     if auth_state_param is None:
         raise HTTPException(status_code=403, detail="Access Denied")
     user_id = auth_state_param.user_id
+    db_service.delete_instance(model=auth_state_param)
+
     token_response = SpotifyAPIService.exchange_code(code)
     user_response = SpotifyAPIService.get_user(token_response.access_token)
 

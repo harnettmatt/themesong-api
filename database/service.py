@@ -52,11 +52,16 @@ class DatabaseService:
         model_object = self.get(id=id, model_type=model_type)
         if model_object is None:
             return None
+        return self.delete_instance(model=model_object)
 
-        self.session.delete(model_object)
+    def delete_instance(self, model: P) -> P:
+        """
+        Deletes object from db
+        """
+        self.session.delete(model)
         self.session.commit()
 
-        return model_object
+        return model
 
     def update(
         self, id: ID, input_schema: BaseModel, model_type: Type[P]
