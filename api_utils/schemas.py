@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, root_validator, validator
 
@@ -12,6 +12,14 @@ class RequestGrantType(str, Enum):
 class APIUserInfo(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class APIAuthorizeParams(BaseModel):
+    response_type: str = "code"
+    client_id: Union[str, int]
+    redirect_uri: str
+    scope: str
+    state: str
 
 
 class APITokenRequest(BaseModel):

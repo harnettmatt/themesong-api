@@ -1,5 +1,10 @@
 """Routing handler for /strava"""
+import random
+import string
+from urllib.parse import urlencode
+
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 
 import utils
 from database.database import get_db_service
@@ -8,7 +13,10 @@ from settings import ENV_VARS
 from spotify.schemas import SpotifyTrack
 from strava.client import StravaAPIService
 from strava.handler import StravaWebhookHandler
+from strava.models import StravaAuthStateParam
 from strava.models import StravaUserInfo as StravaUserInfoModel
+from strava.schemas import StravaAuthorizeParams
+from strava.schemas import StravaAuthStateParam as StravaAuthStateParamSchema
 from strava.schemas import StravaUserInfo as StravaUserInfoSchema
 from strava.schemas import StravaWebhookInput
 from user.models import User
@@ -17,9 +25,26 @@ from user.schemas import UserCreate
 ROUTER = APIRouter()
 
 
+@ROUTER.get("/login")
+def login(db_service: DatabaseService = Depends(get_db_service)):
+    """
+    Redirects to Strava login page
+    """
+    state = "".join(random.choices(string.ascii_letters, k=16))
+    db_service.create(
+        StravaAuthStateParamSchema(id=state),
+        StravaAuthStateParam,
+    )
+    authorize_params = StravaAuthorizeParams(state=state)
+
+    return RedirectResponse(
+        url=f"http://www.strava.com/oauth/authorize?{urlencode(authorize_params.dict())}"
+    )
+
+
 @ROUTER.get("/authorization", status_code=200)
 def authorization(
-    code: str, scope: str, db_service: DatabaseService = Depends(get_db_service)
+    code: str, state: str, db_service: DatabaseService = Depends(get_db_service)
 ):
     """
     Redirect handler for when a Strava user grants access to the application
@@ -27,11 +52,14 @@ def authorization(
         - swapping token for bearer and refresh
         - persisting relevant user information to the db
 
-    Auth url: http://www.strava.com/oauth/authorize?client_id=108820&response_type=code&redirect_uri=https://2182-76-126-88-162.ngrok-free.app/strava/authorization&approval_prompt=force&scope=activity:read_all,activity:write
+    Auth url:
     """
-    # TODO: check to make sure the correct permissions are granted, is there a specific error code that needs to be returned if this is unsuccessful
-    response = StravaAPIService.exchange_code(code)
+    auth_state_param = db_service.get(id=state, model_type=StravaAuthStateParam)
+    if auth_state_param is None:
+        raise HTTPException(status_code=403, detail="Access Denied")
+    db_service.delete_instance(model=auth_state_param)
 
+    response = StravaAPIService.exchange_code(code)
     user = UserCreate(id=response.athlete.id)
     # TODO: should we be generating our own user id?
     strava_user_info = StravaUserInfoSchema(

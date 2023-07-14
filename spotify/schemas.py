@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
-from api_utils.schemas import APITokenRequest, APIUserInfo
+from api_utils.schemas import APIAuthorizeParams, APITokenRequest, APIUserInfo
 from id_base_model.schemas import StrIDBaseModel
 from settings import ENV_VARS
 
@@ -18,17 +18,14 @@ class SpotifyTokenRequest(APITokenRequest):
         return None
 
 
-class SpotifyAuthStateParam(BaseModel):
-    id: str
+class SpotifyAuthStateParam(StrIDBaseModel):
     user_id: int
 
 
-class SpotifyAuthorizeParams(BaseModel):
-    response_type: str = "code"
+class SpotifyAuthorizeParams(APIAuthorizeParams):
     client_id: str = ENV_VARS.SPOTIFY_CLIENT_ID
+    redirect_uri: str = f"{ENV_VARS.HOST}/spotQify/authorization"
     scope: str = "user-read-private user-read-email user-read-recently-played"
-    redirect_uri: str = f"{ENV_VARS.HOST}/spotify/authorization"
-    state: str
 
 
 class SpotifyAuth(APIUserInfo):

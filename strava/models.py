@@ -21,3 +21,14 @@ class StravaUserInfo(Persistable):
     # relationships
     # FIXME: figure out why mypy doesn't like this
     user = relationship("User", back_populates="strava_user_info")  # type: ignore
+
+
+class StravaAuthStateParam(Persistable):
+    """
+    SqlAlchemy model
+    """
+
+    __tablename__ = "strava_auth_state_param"
+
+    # attributes
+    id = Column(String, primary_key=True, index=True)

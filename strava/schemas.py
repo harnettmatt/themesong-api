@@ -5,8 +5,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from api_utils.schemas import APITokenRequest, APIUserInfo
-from id_base_model.schemas import IntIDBaseModel
+from api_utils.schemas import APIAuthorizeParams, APITokenRequest, APIUserInfo
+from id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
 from settings import ENV_VARS
 
 
@@ -24,6 +24,17 @@ class StravaObjectType(str, Enum):
 class StravaStreamKeys(str, Enum):
     TIME = "time"
     HEARTRATE = "heartrate"
+
+
+class StravaAuthStateParam(StrIDBaseModel):
+    pass
+
+
+class StravaAuthorizeParams(APIAuthorizeParams):
+    client_id: int = ENV_VARS.STRAVA_CLIENT_ID
+    redirect_uri: str = f"{ENV_VARS.HOST}/strava/authorization"
+    scope: str = "activity:read_all,activity:write"
+    approval_prompt: str = "force"
 
 
 class StravaWebhookInput(BaseModel):
