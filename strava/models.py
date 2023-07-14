@@ -19,7 +19,7 @@ class StravaUserInfo(Persistable):
     expires_at = Column(String)
 
     # relationships
-    # FIXME: figure out why mypy doesn't like this
+    # FIXME: fix 1:1 relationship
     user = relationship("User", back_populates="strava_user_info")  # type: ignore
 
 

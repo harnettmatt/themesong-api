@@ -19,7 +19,7 @@ class SpotifyUserInfo(Persistable):
     expires_in = Column(Integer)
 
     # relationships
-    # FIXME: figure out why mypy doesn't like this
+    # FIXME: fix 1:1 relationship
     user = relationship("User", back_populates="spotify_user_info")  # type: ignore
 
 

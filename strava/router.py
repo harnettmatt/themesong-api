@@ -61,7 +61,6 @@ def authorization(
 
     response = StravaAPIService.exchange_code(code)
     user = UserCreate(id=response.athlete.id)
-    # TODO: should we be generating our own user id?
     strava_user_info = StravaUserInfoSchema(
         id=user.id, user_id=user.id, **response.dict()
     )
