@@ -10,18 +10,18 @@ from id_base_model.schemas import IntIDBaseModel
 from settings import ENV_VARS
 
 
-class StravaAspectType(Enum):
+class StravaAspectType(str, Enum):
     CREATE = "create"
     DELETE = "delete"
     UPDATE = "update"
 
 
-class StravaObjectType(Enum):
+class StravaObjectType(str, Enum):
     ACTIVITY = "activity"
     ATHLETE = "athlete"
 
 
-class StravaStreamKeys(Enum):
+class StravaStreamKeys(str, Enum):
     TIME = "time"
     HEARTRATE = "heartrate"
 

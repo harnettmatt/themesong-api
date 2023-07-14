@@ -4,7 +4,6 @@ from typing import List, Optional
 import requests
 from requests import Response
 
-from api_utils.schemas import RequestGrantType
 from api_utils.service import APIService
 from database.service import DatabaseService
 from strava import models, schemas
@@ -37,12 +36,11 @@ class StravaAPIService(APIService):
 
     @staticmethod
     def exchange_code(code: str) -> schemas.StravaTokenResponse:
+        params = schemas.StravaTokenRequest(code=code)
+        # TODO: check status code of response for errors. how can we abstract this?
         response: Response = requests.post(
             TOKEN_URL,
-            params=schemas.StravaTokenRequest(
-                grant_type=RequestGrantType.AUTHORIZATION_CODE,
-                code=code,
-            ).dict(),
+            params=params.dict(),
         )
         return schemas.StravaTokenResponse(**response.json())
 
@@ -50,8 +48,7 @@ class StravaAPIService(APIService):
         response: Response = requests.post(
             TOKEN_URL,
             params=schemas.StravaTokenRequest(
-                grant_type=RequestGrantType.REFRESH_TOKEN,
-                refresh_token=self.user_info.refresh_token,
+                refresh_token=self.user_info.refresh_token
             ).dict(),
         )
         return schemas.StravaAuth(**response.json())
