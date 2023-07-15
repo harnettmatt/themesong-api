@@ -9,16 +9,19 @@ from spotify.schemas import (
 )
 from strava import schemas
 from strava.client import StravaAPIService
-from strava.models import StravaUserInfo
+from strava.models import StravaAuthStateParam, StravaUserInfo
 from strava.schemas import StravaAthlete, StravaTokenResponse
 from user.models import User
 
 
+# FIXME: test is missing state functionality
 def test_authorization(test_client, mocker, local_session):
     """
     Test that the authorization endpoint returns a 200 status code
     """
     # Arrange
+    local_session.add(StravaAuthStateParam(id="123"))
+    local_session.commit()
     strava_token_response = StravaTokenResponse(
         access_token="123",
         refresh_token="123",
@@ -36,7 +39,7 @@ def test_authorization(test_client, mocker, local_session):
     )
     # Act
     response = test_client.get(
-        "/strava/authorization?code=123&scope=activity:read_all,activity:write"
+        "/strava/authorization?code=123&scope=activity:read_all,activity:write&state=123"
     )
     # Assert
     assert response.status_code == 200
@@ -54,6 +57,17 @@ def test_authorization(test_client, mocker, local_session):
     assert strava_user_info.expires_at == datetime(2023, 7, 9, 0, 0, 0, 0).strftime(
         "%Y-%m-%dT%H:%M:%S"
     )
+
+
+def test_authorization_403(test_client):
+    # Arrange
+    # Act
+    response = test_client.get(
+        "/strava/authorization?code=123&scope=activity:read_all,activity:write&state=123"
+    )
+    # Assert
+    assert response.status_code == 403
+    assert response.json() == {"detail": "Access Denied"}
 
 
 def test_verify_webook(test_client, mocker):
