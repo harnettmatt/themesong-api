@@ -41,4 +41,3 @@ class APITokenRequest(BaseModel):
             return RequestGrantType.REFRESH_TOKEN
         if values.get("code"):
             return RequestGrantType.AUTHORIZATION_CODE
-        raise ValueError("code or refresh_token must be provided")

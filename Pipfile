@@ -7,7 +7,7 @@ name = "pypi"
 uvicorn = "*"
 fastapi = "*"
 requests = "*"
-pydantic = "*"
+pydantic = "~=1.10.0"
 sqlalchemy = "*"
 psycopg2-binary = "*"
 pyjwt = {extras = ["crypto"], version = "*"}
@@ -21,6 +21,7 @@ black = "*"
 httpx = "*" # https://github.com/tiangolo/fastapi/issues/5656
 mypy = "*"
 types-requests = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.9"
