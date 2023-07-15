@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta
 from typing import List, Optional
+from urllib.parse import urlencode
 
 from pydantic import BaseModel, validator
 
-from api_utils.schemas import APIAuthorizeParams, APITokenRequest, APIUserInfo
+from api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
 from id_base_model.schemas import StrIDBaseModel
 from settings import ENV_VARS
 
@@ -22,10 +23,13 @@ class SpotifyAuthStateParam(StrIDBaseModel):
     user_id: int
 
 
-class SpotifyAuthorizeParams(APIAuthorizeParams):
+class SpotifyAuthParams(APIAuthParams):
     client_id: str = ENV_VARS.SPOTIFY_CLIENT_ID
     redirect_uri: str = f"{ENV_VARS.HOST}/spotify/authorization"
     scope: str = "user-read-private user-read-email user-read-recently-played"
+
+    def format_as_url(self) -> str:
+        return f"https://accounts.spotify.com/authorize?{urlencode(self.dict())}"
 
 
 class SpotifyAuth(APIUserInfo):

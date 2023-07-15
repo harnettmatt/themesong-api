@@ -19,14 +19,29 @@ class APIService:
     def check_auth(self):
         raise NotImplementedError
 
+    @staticmethod
     def _execute(
-        self, func, url: str, params: Optional[dict] = None, data: Optional[dict] = None
+        func,
+        url: str,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        headers: Optional[dict] = None,
+    ) -> Response:
+        response: Response = func(url, headers=headers, params=params, data=data)
+        response.raise_for_status()
+        return response
+
+    def _execute_with_auth(
+        self,
+        func,
+        url: str,
+        params: Optional[dict] = None,
+        data: Optional[dict] = None,
+        headers: Optional[dict] = None,
     ) -> Response:
         self.check_auth()
-        response: Response = func(
-            url,
-            headers={"Authorization": f"Bearer {self.user_info.access_token}"},
-            params=params,
-            data=data,
+        if headers and not headers.get("Authorization"):
+            headers["Authorization"] = f"Bearer {self.user_info.access_token}"
+        return self._execute(
+            func=func, url=url, params=params, data=data, headers=headers
         )
-        return response

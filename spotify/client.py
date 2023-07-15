@@ -32,12 +32,14 @@ class SpotifyAPIService(APIService):
         )
 
     def refresh_token(self) -> schemas.SpotifyAuth:
-        response: Response = requests.post(
+        request_body = schemas.SpotifyTokenRequest(
+            grant_type=RequestGrantType.REFRESH_TOKEN,
+            refresh_token=self.user_info.refresh_token,
+        )
+        response = self._execute(
+            requests.post,
             SPOTIFY_TOKEN_URL,
-            data=schemas.SpotifyTokenRequest(
-                grant_type=RequestGrantType.REFRESH_TOKEN,
-                refresh_token=self.user_info.refresh_token,
-            ).dict(),
+            data=request_body.dict(),
             headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
         return schemas.SpotifyAuth(**response.json())
@@ -49,13 +51,15 @@ class SpotifyAPIService(APIService):
 
     @classmethod
     def exchange_code(cls, code: str) -> schemas.SpotifyTokenResponse:
-        response: Response = requests.post(
+        request_body = schemas.SpotifyTokenRequest(
+            grant_type=RequestGrantType.AUTHORIZATION_CODE,
+            redirect_uri=f"{ENV_VARS.HOST}/spotify/authorization",
+            code=code,
+        )
+        response = cls._execute(
+            requests.post,
             SPOTIFY_TOKEN_URL,
-            data=schemas.SpotifyTokenRequest(
-                grant_type=RequestGrantType.AUTHORIZATION_CODE,
-                redirect_uri=f"{ENV_VARS.HOST}/spotify/authorization",
-                code=code,
-            ).dict(),
+            data=request_body.dict(),
             headers={"Authorization": f"Basic {cls.get_encoded_token()}"},
         )
 
@@ -64,7 +68,8 @@ class SpotifyAPIService(APIService):
     # if we use this function somewhere else it will need to be refactored to have refresh token logic
     @classmethod
     def get_user(cls, access_token: str) -> schemas.SpotifyUserResponse:
-        response: Response = requests.get(
+        response = cls._execute(
+            requests.get,
             f"{SPOTIFY_BASE_URL}/me",
             headers={"Authorization": f"Bearer {access_token}"},
         )
@@ -74,7 +79,7 @@ class SpotifyAPIService(APIService):
         self, after: datetime, limit: int = 50
     ) -> schemas.SpotifyRecentlyPlayedResponse:
         after_milliseconds = int(after.timestamp() * 1000)
-        response: Response = self._execute(
+        response: Response = self._execute_with_auth(
             requests.get,
             f"{SPOTIFY_BASE_URL}/me/player/recently-played",
             params=schemas.SpotifyRecentlyPlayedRequest(

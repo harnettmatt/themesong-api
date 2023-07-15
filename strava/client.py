@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 import requests
 from requests import Response
@@ -34,39 +34,27 @@ class StravaAPIService(APIService):
             model_type=models.StravaUserInfo,
         )
 
-    @staticmethod
-    def exchange_code(code: str) -> schemas.StravaTokenResponse:
+    @classmethod
+    def exchange_code(cls, code: str) -> schemas.StravaTokenResponse:
         params = schemas.StravaTokenRequest(code=code)
-        # TODO: check status code of response for errors. how can we abstract this?
-        response: Response = requests.post(
+        response: Response = cls._execute(
+            requests.post,
             TOKEN_URL,
             params=params.dict(),
         )
         return schemas.StravaTokenResponse(**response.json())
 
     def refresh_token(self) -> schemas.StravaAuth:
-        response: Response = requests.post(
-            TOKEN_URL,
-            params=schemas.StravaTokenRequest(
-                refresh_token=self.user_info.refresh_token
-            ).dict(),
+        params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
+        response = self._execute_with_auth(
+            requests.post, TOKEN_URL, params=params.dict()
         )
         return schemas.StravaAuth(**response.json())
 
-    def _execute(
-        self, func, url: str, params: Optional[dict] = None, data: Optional[dict] = None
-    ) -> Response:
-        self.check_auth()
-        response: Response = func(
-            url,
-            headers={"Authorization": f"Bearer {self.user_info.access_token}"},
-            params=params,
-            data=data,
-        )
-        return response
-
     def get_activity(self, id: int) -> schemas.StravaActivity:
-        response = self._execute(requests.get, f"{API_PREFIX}/activities/{id}")
+        response = self._execute_with_auth(
+            requests.get, f"{API_PREFIX}/activities/{id}"
+        )
         return schemas.StravaActivity(**response.json())
 
     def get_stream_for_activity(
@@ -76,7 +64,7 @@ class StravaAPIService(APIService):
         key_by_type: bool = True,
     ) -> schemas.StravaActivityStream:
         stream_keys_str = ",".join([key.value for key in stream_keys])
-        response = self._execute(
+        response = self._execute_with_auth(
             requests.get,
             f"{API_PREFIX}/activities/{id}/streams",
             params={"keys": stream_keys_str, "key_by_type": str(key_by_type).lower()},
@@ -84,7 +72,7 @@ class StravaAPIService(APIService):
         return schemas.StravaActivityStream(**response.json())
 
     def update_activity(self, id: int, data: dict):
-        self._execute(
+        self._execute_with_auth(
             requests.put,
             f"{API_PREFIX}/activities/{id}",
             data=data,

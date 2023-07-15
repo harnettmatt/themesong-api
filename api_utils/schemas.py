@@ -14,7 +14,7 @@ class APIUserInfo(BaseModel):
     refresh_token: str
 
 
-class APIAuthorizeParams(BaseModel):
+class APIAuthParams(BaseModel):
     response_type: str = "code"
     client_id: Union[str, int]
     redirect_uri: str

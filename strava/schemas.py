@@ -2,10 +2,11 @@
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
+from urllib.parse import urlencode
 
 from pydantic import BaseModel
 
-from api_utils.schemas import APIAuthorizeParams, APITokenRequest, APIUserInfo
+from api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
 from id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
 from settings import ENV_VARS
 
@@ -30,11 +31,14 @@ class StravaAuthStateParam(StrIDBaseModel):
     pass
 
 
-class StravaAuthorizeParams(APIAuthorizeParams):
+class StravaAuthParams(APIAuthParams):
     client_id: int = ENV_VARS.STRAVA_CLIENT_ID
     redirect_uri: str = f"{ENV_VARS.HOST}/strava/authorization"
     scope: str = "activity:read_all,activity:write"
     approval_prompt: str = "force"
+
+    def format_as_url(self) -> str:
+        return f"http://www.strava.com/oauth/authorize?{urlencode(self.dict())}"
 
 
 class StravaWebhookInput(BaseModel):

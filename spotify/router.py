@@ -1,8 +1,4 @@
 """Routing handler for /spotify"""
-import random
-import string
-from urllib.parse import urlencode
-
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 
@@ -10,6 +6,7 @@ from database.database import get_db_service
 from database.service import DatabaseService
 from spotify import models, schemas
 from spotify.client import SpotifyAPIService
+from utils import generate_auth_state
 
 ROUTER = APIRouter()
 
@@ -23,16 +20,14 @@ def login(
     TODO: replace user id with some oauth token
     Endpoint for logging in a user
     """
-    state = "".join(random.choices(string.ascii_letters, k=16))
+    state = generate_auth_state()
     db_service.create(
         schemas.SpotifyAuthStateParam(id=state, user_id=user_id),
         models.SpotifyAuthStateParam,
     )
-    authorize_params = schemas.SpotifyAuthorizeParams(state=state)
+    auth_url = schemas.SpotifyAuthParams(state=state).format_as_url()
 
-    return RedirectResponse(
-        url=f"https://accounts.spotify.com/authorize?{urlencode(authorize_params.dict())}"
-    )
+    return RedirectResponse(url=auth_url)
 
 
 @ROUTER.get("/authorization", status_code=200)

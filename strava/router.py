@@ -1,8 +1,4 @@
 """Routing handler for /strava"""
-import random
-import string
-from urllib.parse import urlencode
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
@@ -15,7 +11,7 @@ from strava.client import StravaAPIService
 from strava.handler import StravaWebhookHandler
 from strava.models import StravaAuthStateParam
 from strava.models import StravaUserInfo as StravaUserInfoModel
-from strava.schemas import StravaAuthorizeParams
+from strava.schemas import StravaAuthParams
 from strava.schemas import StravaAuthStateParam as StravaAuthStateParamSchema
 from strava.schemas import StravaUserInfo as StravaUserInfoSchema
 from strava.schemas import StravaWebhookInput
@@ -30,16 +26,14 @@ def login(db_service: DatabaseService = Depends(get_db_service)):
     """
     Redirects to Strava login page
     """
-    state = "".join(random.choices(string.ascii_letters, k=16))
+    state = utils.generate_auth_state()
     db_service.create(
         StravaAuthStateParamSchema(id=state),
         StravaAuthStateParam,
     )
-    authorize_params = StravaAuthorizeParams(state=state)
+    auth_url = StravaAuthParams(state=state).format_as_url()
 
-    return RedirectResponse(
-        url=f"http://www.strava.com/oauth/authorize?{urlencode(authorize_params.dict())}"
-    )
+    return RedirectResponse(url=auth_url)
 
 
 @ROUTER.get("/authorization", status_code=200)
