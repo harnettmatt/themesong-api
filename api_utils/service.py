@@ -1,10 +1,14 @@
 from abc import abstractmethod
-from typing import Optional
+from typing import Optional, Type, TypeVar
 
+from fastapi import HTTPException
 from requests import Response
 
 from api_utils.schemas import APIUserInfo
 from database.service import DatabaseService
+from persistable.models import Persistable
+
+P = TypeVar("P", bound=Persistable)
 
 
 class APIService:
@@ -30,6 +34,16 @@ class APIService:
         response: Response = func(url, headers=headers, params=params, data=data)
         response.raise_for_status()
         return response
+
+    @staticmethod
+    def authorize_redirect_state(
+        state: str, model_type: Type[P], db_service: DatabaseService
+    ) -> P:
+        auth_state_param = db_service.get(id=state, model_type=model_type)
+        if auth_state_param is None:
+            raise HTTPException(status_code=403, detail="Access Denied")
+        db_service.delete_instance(model=auth_state_param)
+        return auth_state_param
 
     def _execute_with_auth(
         self,

@@ -48,10 +48,9 @@ def authorization(
 
     Auth url:
     """
-    auth_state_param = db_service.get(id=state, model_type=StravaAuthStateParam)
-    if auth_state_param is None:
-        raise HTTPException(status_code=403, detail="Access Denied")
-    db_service.delete_instance(model=auth_state_param)
+    StravaAPIService.authorize_redirect_state(
+        state=state, model_type=StravaAuthStateParam, db_service=db_service
+    )
 
     response = StravaAPIService.exchange_code(code)
     user = UserCreate(id=response.athlete.id)

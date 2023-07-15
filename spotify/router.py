@@ -1,5 +1,5 @@
 """Routing handler for /spotify"""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 
 from database.database import get_db_service
@@ -42,17 +42,15 @@ def authorization(
         - swapping token for bearer and refresh
         - persisting relevant user information to the db
     """
-    auth_state_param = db_service.get(id=state, model_type=models.SpotifyAuthStateParam)
-    if auth_state_param is None:
-        raise HTTPException(status_code=403, detail="Access Denied")
-    user_id = auth_state_param.user_id
-    db_service.delete_instance(model=auth_state_param)
+    auth_state_param = SpotifyAPIService.authorize_redirect_state(
+        state=state, model_type=models.SpotifyAuthStateParam, db_service=db_service
+    )
 
     token_response = SpotifyAPIService.exchange_code(code)
     user_response = SpotifyAPIService.get_user(token_response.access_token)
 
     spotify_user_info = schemas.SpotifyUserInfo(
-        user_id=user_id,
+        user_id=auth_state_param.user_id,
         **token_response.dict(),
         **user_response.dict(),
     )
