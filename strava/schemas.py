@@ -6,9 +6,9 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel
 
+import settings
 from api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
 from id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
-from settings import ENV_VARS
 
 
 class StravaAspectType(str, Enum):
@@ -32,8 +32,8 @@ class StravaAuthStateParam(StrIDBaseModel):
 
 
 class StravaAuthParams(APIAuthParams):
-    client_id: int = ENV_VARS.STRAVA_CLIENT_ID
-    redirect_uri: str = f"{ENV_VARS.HOST}/strava/authorization"
+    client_id: int = settings.ENV_VARS.STRAVA_CLIENT_ID
+    redirect_uri: str = f"{settings.ENV_VARS.HOST}/strava/authorization"
     scope: str = "activity:read_all,activity:write"
     approval_prompt: str = "force"
 
@@ -49,8 +49,8 @@ class StravaWebhookInput(BaseModel):
 
 
 class StravaTokenRequest(APITokenRequest):
-    client_id: int = ENV_VARS.STRAVA_CLIENT_ID
-    client_secret: str = ENV_VARS.STRAVA_CLIENT_SECRET
+    client_id: int = settings.ENV_VARS.STRAVA_CLIENT_ID
+    client_secret: str = settings.ENV_VARS.STRAVA_CLIENT_SECRET
 
 
 class StravaAthlete(IntIDBaseModel):

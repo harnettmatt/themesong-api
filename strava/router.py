@@ -2,10 +2,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
+import settings
 import utils
 from database.database import get_db_service
 from database.service import DatabaseService
-from settings import ENV_VARS
 from spotify.schemas import SpotifyTrack
 from strava.client import StravaAPIService
 from strava.handler import StravaWebhookHandler
@@ -71,7 +71,8 @@ def verify_webhook(request: Request):
     query_params = utils.get_query_params_as_dict(request)
     if (
         query_params.get("hub.mode") == "subscribe"
-        and query_params.get("hub.verify_token") == ENV_VARS.STRAVA_WEBHOOK_TOKEN
+        and query_params.get("hub.verify_token")
+        == settings.ENV_VARS.STRAVA_WEBHOOK_TOKEN
     ):
         return {"hub.challenge": query_params.get("hub.challenge")}
 

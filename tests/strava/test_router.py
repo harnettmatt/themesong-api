@@ -14,7 +14,21 @@ from strava.schemas import StravaAthlete, StravaTokenResponse
 from user.models import User
 
 
-# FIXME: test is missing state functionality
+def test_login(test_client, mocker, local_session):
+    # Arrange
+    mocker.patch("strava.router.utils.generate_auth_state", return_value="123")
+    # Act
+    response = test_client.get("/strava/login")
+    # Assert
+    assert (
+        response.request.url
+        == "http://www.strava.com/oauth/authorize?response_type=code&client_id=1234567890&redirect_uri=https%3A%2F%2F123abctest.com%2Fstrava%2Fauthorization&scope=activity%3Aread_all%2Cactivity%3Awrite&state=123&approval_prompt=force"
+    )
+    assert local_session.query(StravaAuthStateParam).get("123") == StravaAuthStateParam(
+        id="123"
+    )
+
+
 def test_authorization(test_client, mocker, local_session):
     """
     Test that the authorization endpoint returns a 200 status code
@@ -75,10 +89,9 @@ def test_verify_webook(test_client, mocker):
     Test that the verify webhook endpoint returns a 200 status code
     """
     # Arrange
-    mocker.patch("strava.router.ENV_VARS.STRAVA_WEBHOOK_TOKEN", "123")
     # Act
     response = test_client.get(
-        "/strava/webhook?hub.mode=subscribe&hub.verify_token=123&hub.challenge=456"
+        "/strava/webhook?hub.mode=subscribe&hub.verify_token=abc123&hub.challenge=456"
     )
     # Assert
     assert response.status_code == 200

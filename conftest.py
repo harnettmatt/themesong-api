@@ -3,9 +3,20 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import settings
 from database.database import get_session
-from main import app
 from persistable.models import Base
+
+settings.ENV_VARS = settings.EnvironmentVariables(
+    HOST="https://123abctest.com",
+    STRAVA_CLIENT_ID=1234567890,
+    STRAVA_CLIENT_SECRET="abcdefghijk",
+    STRAVA_WEBHOOK_TOKEN="abc123",
+    SPOTIFY_CLIENT_ID="0987654321",
+    SPOTIFY_CLIENT_SECRET="lmnopqrstuv",
+)
+
+from main import app  # noqa: E402
 
 # CONSTANTS
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

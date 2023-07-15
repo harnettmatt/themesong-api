@@ -4,10 +4,10 @@ from datetime import datetime
 import requests
 from requests import Response
 
+import settings
 from api_utils.schemas import RequestGrantType
 from api_utils.service import APIService
 from database.service import DatabaseService
-from settings import ENV_VARS
 from spotify import schemas
 
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
@@ -46,14 +46,14 @@ class SpotifyAPIService(APIService):
 
     @staticmethod
     def get_encoded_token() -> str:
-        token = f"{ENV_VARS.SPOTIFY_CLIENT_ID}:{ENV_VARS.SPOTIFY_CLIENT_SECRET}"
+        token = f"{settings.ENV_VARS.SPOTIFY_CLIENT_ID}:{settings.ENV_VARS.SPOTIFY_CLIENT_SECRET}"
         return base64.b64encode(token.encode("ascii")).decode("ascii")
 
     @classmethod
     def exchange_code(cls, code: str) -> schemas.SpotifyTokenResponse:
         request_body = schemas.SpotifyTokenRequest(
             grant_type=RequestGrantType.AUTHORIZATION_CODE,
-            redirect_uri=f"{ENV_VARS.HOST}/spotify/authorization",
+            redirect_uri=f"{settings.ENV_VARS.HOST}/spotify/authorization",
             code=code,
         )
         response = cls._execute(

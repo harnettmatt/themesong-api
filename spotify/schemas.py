@@ -4,9 +4,9 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel, validator
 
+import settings
 from api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
 from id_base_model.schemas import StrIDBaseModel
-from settings import ENV_VARS
 
 
 class SpotifyTokenRequest(APITokenRequest):
@@ -15,7 +15,7 @@ class SpotifyTokenRequest(APITokenRequest):
     @validator("redirect_uri", always=True)
     def validate_redirect_uri(cls, v, values):
         if values.get("code"):
-            return f"{ENV_VARS.HOST}/spotify/authorization"
+            return f"{settings.ENV_VARS.HOST}/spotify/authorization"
         return None
 
 
@@ -24,8 +24,8 @@ class SpotifyAuthStateParam(StrIDBaseModel):
 
 
 class SpotifyAuthParams(APIAuthParams):
-    client_id: str = ENV_VARS.SPOTIFY_CLIENT_ID
-    redirect_uri: str = f"{ENV_VARS.HOST}/spotify/authorization"
+    client_id: str = settings.ENV_VARS.SPOTIFY_CLIENT_ID
+    redirect_uri: str = f"{settings.ENV_VARS.HOST}/spotify/authorization"
     scope: str = "user-read-private user-read-email user-read-recently-played"
 
     def format_as_url(self) -> str:
