@@ -31,10 +31,16 @@ class StravaService:
     def update_activity_with_track(
         self, activity: schemas.StravaActivity, track: SpotifyTrack
     ):
-        # TODO: add logic to check existing description to see if it already contains the track
+        if activity.description and "Theme Song:" in activity.description:
+            return
+
+        theme_song_string = f"Theme Song: {track.name} - {track.href}"
+        if activity.description:
+            description = f"{activity.description} \n{theme_song_string}"
+        else:
+            description = theme_song_string
+
         self.api.update_activity(
             id=activity.id,
-            data={
-                "description": f"{activity.description} \nTheme Song: {track.name} - {track.href}"
-            },
+            data={"description": description},
         )
