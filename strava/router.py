@@ -36,7 +36,7 @@ def login(db_service: DatabaseService = Depends(get_db_service)):
     return RedirectResponse(url=auth_url)
 
 
-@ROUTER.get("/authorization", status_code=200)
+@ROUTER.get("/authorization")
 def authorization(
     code: str, state: str, db_service: DatabaseService = Depends(get_db_service)
 ):
@@ -60,6 +60,8 @@ def authorization(
 
     db_service.merge(input_schema=user, model_type=User)
     db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
+
+    return RedirectResponse(url="http://localhost:5173/")
 
 
 @ROUTER.get("/webhook", status_code=200)
