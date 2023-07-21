@@ -61,7 +61,7 @@ def authorization(
     db_service.merge(input_schema=user, model_type=User)
     db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
 
-    return RedirectResponse(url="http://localhost:5173/")
+    return RedirectResponse(url=f"http://localhost:5173/strava/{user.id}")
 
 
 @ROUTER.get("/webhook", status_code=200)

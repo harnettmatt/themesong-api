@@ -55,3 +55,5 @@ def authorization(
         **user_response.dict(),
     )
     db_service.merge(input_schema=spotify_user_info, model_type=models.SpotifyUserInfo)
+
+    return RedirectResponse(url=f"http://localhost:5173/spotify/{spotify_user_info.id}")
