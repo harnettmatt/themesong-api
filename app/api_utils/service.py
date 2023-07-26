@@ -4,9 +4,9 @@ from typing import Optional, Type, TypeVar
 from fastapi import HTTPException
 from requests import Response
 
-from api_utils.schemas import APIUserInfo
-from database.service import DatabaseService
-from persistable.models import Persistable
+from app.api_utils.schemas import APIUserInfo
+from app.database.service import DatabaseService
+from app.persistable.models import Persistable
 
 P = TypeVar("P", bound=Persistable)
 

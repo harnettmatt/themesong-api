@@ -6,9 +6,9 @@ from urllib.parse import urlencode
 
 from pydantic import BaseModel
 
-import settings
-from api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
-from id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
+from app import settings
+from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
+from app.id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
 
 
 class StravaAspectType(str, Enum):

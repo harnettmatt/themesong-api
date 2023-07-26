@@ -6,7 +6,7 @@ docs:
 
 # App
 app-start:
-	pipenv run uvicorn main:app --reload
+	pipenv run uvicorn app.main:app --reload
 
 # DB
 db-start:

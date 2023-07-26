@@ -3,9 +3,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-import settings
-from database.database import get_session
-from persistable.models import Base
+from app import settings
+from app.database.database import get_session
+from app.persistable.models import Base
 
 settings.ENV_VARS = settings.EnvironmentVariables(
     HOST="https://123abctest.com",
@@ -16,7 +16,7 @@ settings.ENV_VARS = settings.EnvironmentVariables(
     SPOTIFY_CLIENT_SECRET="lmnopqrstuv",
 )
 
-from main import app  # noqa: E402
+from app.main import app  # noqa: E402
 
 # CONSTANTS
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"

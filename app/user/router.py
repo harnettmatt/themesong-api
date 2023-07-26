@@ -4,10 +4,10 @@ from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from auth.utils import get_current_user_id
-from database.database import get_session
-from database.service import DatabaseService
-from user import models, schemas
+from app.auth.utils import get_current_user_id
+from app.database.database import get_session
+from app.database.service import DatabaseService
+from app.user import models, schemas
 
 ROUTER = APIRouter()
 

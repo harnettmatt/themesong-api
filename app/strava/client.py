@@ -4,9 +4,9 @@ from typing import List
 import requests
 from requests import Response
 
-from api_utils.service import APIService
-from database.service import DatabaseService
-from strava import models, schemas
+from app.api_utils.service import APIService
+from app.database.service import DatabaseService
+from app.strava import models, schemas
 
 TOKEN_URL = "https://www.strava.com/oauth/token"
 API_PREFIX = "https://www.strava.com/api/v3"

@@ -2,21 +2,20 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
-import settings
-import utils
-from database.database import get_db_service
-from database.service import DatabaseService
-from spotify.schemas import SpotifyTrack
-from strava.client import StravaAPIService
-from strava.handler import StravaWebhookHandler
-from strava.models import StravaAuthStateParam
-from strava.models import StravaUserInfo as StravaUserInfoModel
-from strava.schemas import StravaAuthParams
-from strava.schemas import StravaAuthStateParam as StravaAuthStateParamSchema
-from strava.schemas import StravaUserInfo as StravaUserInfoSchema
-from strava.schemas import StravaWebhookInput
-from user.models import User
-from user.schemas import UserCreate
+from app import settings, utils
+from app.database.database import get_db_service
+from app.database.service import DatabaseService
+from app.spotify.schemas import SpotifyTrack
+from app.strava.client import StravaAPIService
+from app.strava.handler import StravaWebhookHandler
+from app.strava.models import StravaAuthStateParam
+from app.strava.models import StravaUserInfo as StravaUserInfoModel
+from app.strava.schemas import StravaAuthParams
+from app.strava.schemas import StravaAuthStateParam as StravaAuthStateParamSchema
+from app.strava.schemas import StravaUserInfo as StravaUserInfoSchema
+from app.strava.schemas import StravaWebhookInput
+from app.user.models import User
+from app.user.schemas import UserCreate
 
 ROUTER = APIRouter()
 
@@ -61,6 +60,7 @@ def authorization(
     db_service.merge(input_schema=user, model_type=User)
     db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
 
+    # TODO: replace this with a hosted frontend url
     return RedirectResponse(url=f"http://localhost:5173/strava/{user.id}")
 
 

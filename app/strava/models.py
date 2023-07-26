@@ -1,6 +1,6 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 
-from persistable.models import Persistable
+from app.persistable.models import Persistable
 
 
 class StravaUserInfo(Persistable):

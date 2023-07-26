@@ -2,9 +2,9 @@ from datetime import datetime
 
 import pytest
 
-from spotify.schemas import SpotifyTrack
-from strava.schemas import StravaActivity
-from strava.service import StravaService
+from app.spotify.schemas import SpotifyTrack
+from app.strava.schemas import StravaActivity
+from app.strava.service import StravaService
 
 
 @pytest.mark.parametrize(

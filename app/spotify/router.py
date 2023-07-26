@@ -2,11 +2,11 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 
-from database.database import get_db_service
-from database.service import DatabaseService
-from spotify import models, schemas
-from spotify.client import SpotifyAPIService
-from utils import generate_auth_state
+from app.database.database import get_db_service
+from app.database.service import DatabaseService
+from app.spotify import models, schemas
+from app.spotify.client import SpotifyAPIService
+from app.utils import generate_auth_state
 
 ROUTER = APIRouter()
 

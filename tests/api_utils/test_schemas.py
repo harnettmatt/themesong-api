@@ -1,6 +1,6 @@
 import pytest
 
-from api_utils.schemas import APITokenRequest
+from app.api_utils.schemas import APITokenRequest
 
 
 def test_api_token_request_validate_grant_type_refresh_token():

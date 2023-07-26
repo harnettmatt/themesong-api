@@ -2,9 +2,9 @@
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import relationship
 
-from persistable.models import Persistable
-from spotify.models import SpotifyUserInfo
-from strava.models import StravaUserInfo
+from app.persistable.models import Persistable
+from app.spotify.models import SpotifyUserInfo
+from app.strava.models import StravaUserInfo
 
 
 class User(Persistable):

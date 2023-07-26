@@ -1,9 +1,9 @@
 """Routing for /"""
 from fastapi import FastAPI
 
-from spotify.router import ROUTER as SPOTIFY_ROUTER
-from strava.router import ROUTER as STRAVA_ROUTER
-from user.router import ROUTER as USERS_ROUTER
+from app.spotify.router import ROUTER as SPOTIFY_ROUTER
+from app.strava.router import ROUTER as STRAVA_ROUTER
+from app.user.router import ROUTER as USERS_ROUTER
 
 app = FastAPI()
 

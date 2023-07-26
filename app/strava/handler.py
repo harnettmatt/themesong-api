@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 
-from database.service import DatabaseService
-from spotify.schemas import SpotifyUserInfo
-from spotify.service import SpotifyAPIService, SpotifyService
-from strava import schemas
-from strava.client import StravaAPIService
-from strava.service import StravaService
-from user.models import User
+from app.database.service import DatabaseService
+from app.spotify.schemas import SpotifyUserInfo
+from app.spotify.service import SpotifyAPIService, SpotifyService
+from app.strava import schemas
+from app.strava.client import StravaAPIService
+from app.strava.service import StravaService
+from app.user.models import User
 
 
 class StravaWebhookHandler:

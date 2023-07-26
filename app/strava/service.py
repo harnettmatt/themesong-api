@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
-from spotify.schemas import SpotifyTrack
-from strava import schemas
-from strava.client import StravaAPIService
+from app.spotify.schemas import SpotifyTrack
+from app.strava import schemas
+from app.strava.client import StravaAPIService
 
 
 class StravaService:

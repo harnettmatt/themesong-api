@@ -3,8 +3,8 @@ from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 
-from database.service import DatabaseService
-from persistable.models import Persistable
+from app.database.service import DatabaseService
+from app.persistable.models import Persistable
 
 
 class MockSchemaCreate(BaseModel):

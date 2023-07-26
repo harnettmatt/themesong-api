@@ -5,7 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from persistable.models import Persistable
+from app.persistable.models import Persistable
 
 # User id is defined as a string and all other ids are autoincrementing
 ID = Union[str, int]

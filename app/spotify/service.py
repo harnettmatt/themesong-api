@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from spotify import schemas
-from spotify.client import SpotifyAPIService
+from app.spotify import schemas
+from app.spotify.client import SpotifyAPIService
 
 
 class SpotifyService:

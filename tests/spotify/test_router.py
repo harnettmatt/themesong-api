@@ -1,13 +1,13 @@
 from datetime import timedelta
 
-from spotify.models import SpotifyAuthStateParam, SpotifyUserInfo
-from spotify.schemas import SpotifyTokenResponse, SpotifyUserResponse
-from user.models import User
+from app.spotify.models import SpotifyAuthStateParam, SpotifyUserInfo
+from app.spotify.schemas import SpotifyTokenResponse, SpotifyUserResponse
+from app.user.models import User
 
 
 def test_login(test_client, mocker, local_session):
     # Arrange
-    mocker.patch("spotify.router.generate_auth_state", return_value="123")
+    mocker.patch("app.spotify.router.generate_auth_state", return_value="123")
     # Act
     response = test_client.get("/spotify/login?user_id=456")
     # Assert
@@ -34,19 +34,21 @@ def test_authorization(test_client, mocker, local_session):
         expires_in=timedelta(seconds=3600),
     )
     mocker.patch(
-        "spotify.router.SpotifyAPIService.exchange_code",
+        "app.spotify.router.SpotifyAPIService.exchange_code",
         return_value=spotify_token_response,
     )
     mocker.patch(
-        "spotify.router.SpotifyAPIService.get_user",
+        "app.spotify.router.SpotifyAPIService.get_user",
         return_value=SpotifyUserResponse(id="def"),
     )
     # Act
     response = test_client.get(
-        "/spotify/authorization?code=123&scope=activity:read_all,activity:write&state=456"
+        "/spotify/authorization?code=123&scope=activity:read_all,activity:write&state=456",
+        allow_redirects=False,
     )
     # Assert
-    assert response.status_code == 200
+    assert response.status_code == 307
+    assert response.headers["Location"] == "http://localhost:5173/spotify/def"
 
     spotify_user_info = local_session.query(SpotifyUserInfo).get("def")
     assert spotify_user_info is not None

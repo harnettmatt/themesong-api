@@ -1,6 +1,6 @@
 """models for User"""
-from id_base_model.schemas import IntIDBaseModel
-from strava.schemas import StravaUserInfo
+from app.id_base_model.schemas import IntIDBaseModel
+from app.strava.schemas import StravaUserInfo
 
 
 class User(IntIDBaseModel):

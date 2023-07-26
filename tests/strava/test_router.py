@@ -1,22 +1,22 @@
 from datetime import datetime
 
-from spotify.client import SpotifyAPIService
-from spotify.models import SpotifyUserInfo
-from spotify.schemas import (
+from app.spotify.client import SpotifyAPIService
+from app.spotify.models import SpotifyUserInfo
+from app.spotify.schemas import (
     SpotifyPlayHistoryObject,
     SpotifyRecentlyPlayedResponse,
     SpotifyTrack,
 )
-from strava import schemas
-from strava.client import StravaAPIService
-from strava.models import StravaAuthStateParam, StravaUserInfo
-from strava.schemas import StravaAthlete, StravaTokenResponse
-from user.models import User
+from app.strava import schemas
+from app.strava.client import StravaAPIService
+from app.strava.models import StravaAuthStateParam, StravaUserInfo
+from app.strava.schemas import StravaAthlete, StravaTokenResponse
+from app.user.models import User
 
 
 def test_login(test_client, mocker, local_session):
     # Arrange
-    mocker.patch("strava.router.utils.generate_auth_state", return_value="123")
+    mocker.patch("app.strava.router.utils.generate_auth_state", return_value="123")
     # Act
     response = test_client.get("/strava/login")
     # Assert
@@ -48,15 +48,17 @@ def test_authorization(test_client, mocker, local_session):
         ),
     )
     mocker.patch(
-        "strava.router.StravaAPIService.exchange_code",
+        "app.strava.router.StravaAPIService.exchange_code",
         return_value=strava_token_response,
     )
     # Act
     response = test_client.get(
-        "/strava/authorization?code=123&scope=activity:read_all,activity:write&state=123"
+        "/strava/authorization?code=123&scope=activity:read_all,activity:write&state=123",
+        allow_redirects=False,
     )
     # Assert
-    assert response.status_code == 200
+    assert response.status_code == 307
+    assert response.headers["location"] == "http://localhost:5173/strava/123"
 
     user = local_session.query(User).get(123)
     assert user is not None

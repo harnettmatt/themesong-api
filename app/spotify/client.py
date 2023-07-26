@@ -4,11 +4,11 @@ from datetime import datetime
 import requests
 from requests import Response
 
-import settings
-from api_utils.schemas import RequestGrantType
-from api_utils.service import APIService
-from database.service import DatabaseService
-from spotify import schemas
+from app import settings
+from app.api_utils.schemas import RequestGrantType
+from app.api_utils.service import APIService
+from app.database.service import DatabaseService
+from app.spotify import schemas
 
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 SPOTIFY_BASE_URL = "https://api.spotify.com/v1"
