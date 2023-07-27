@@ -11,8 +11,13 @@ class EnvironmentVariables(BaseSettings):
     SPOTIFY_CLIENT_ID: str
     SPOTIFY_CLIENT_SECRET: str
 
+    DB_HOST: str
+    DB_NAME: str
+    DB_PORT: int
+    DB_USER: str
+    DB_PASSWORD: str
+
     class Config:
-        env_file = ".env"
         case_sensitive = True
 
 

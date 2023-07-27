@@ -7,8 +7,9 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.database import base  # noqa
 from app.database.service import DatabaseService
 from app.persistable.models import Base
+from app.settings import ENV_VARS
 
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@0.0.0.0:5432/postgres"
+SQLALCHEMY_DATABASE_URL = f"postgresql://{ENV_VARS.DB_USER}:{ENV_VARS.DB_USER}@{ENV_VARS.DB_HOST}:{ENV_VARS.DB_PORT}/{ENV_VARS.DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

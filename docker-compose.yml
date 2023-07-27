@@ -8,3 +8,25 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5432:5432'
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - db
+    environment:
+      - HOST
+      - STRAVA_CLIENT_ID
+      - STRAVA_CLIENT_SECRET
+      - STRAVA_WEBHOOK_TOKEN
+      - SPOTIFY_CLIENT_ID
+      - SPOTIFY_CLIENT_SECRET
+      - DB_HOST
+      - DB_NAME
+      - DB_PORT
+      - DB_USER
+      - DB_PASSWORD
+    ports:
+      - '8000:8000'
