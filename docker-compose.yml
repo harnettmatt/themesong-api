@@ -16,17 +16,8 @@ services:
       - .env
     depends_on:
       - db
+    restart: on-failure:2
     environment:
-      - HOST
-      - STRAVA_CLIENT_ID
-      - STRAVA_CLIENT_SECRET
-      - STRAVA_WEBHOOK_TOKEN
-      - SPOTIFY_CLIENT_ID
-      - SPOTIFY_CLIENT_SECRET
-      - DB_HOST
-      - DB_NAME
-      - DB_PORT
-      - DB_USER
-      - DB_PASSWORD
+      DB_HOST: db
     ports:
       - '8000:8000'

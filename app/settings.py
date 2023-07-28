@@ -2,6 +2,8 @@ from pydantic import BaseSettings
 
 
 class EnvironmentVariables(BaseSettings):
+    # default values are for starting locally
+    # specify .env file to adjust values
     HOST: str
 
     STRAVA_CLIENT_ID: int
@@ -11,11 +13,11 @@ class EnvironmentVariables(BaseSettings):
     SPOTIFY_CLIENT_ID: str
     SPOTIFY_CLIENT_SECRET: str
 
-    DB_HOST: str
-    DB_NAME: str
-    DB_PORT: int
-    DB_USER: str
-    DB_PASSWORD: str
+    DB_HOST: str = "localhost"
+    DB_NAME: str = "postgres"
+    DB_PORT: int = 5432
+    DB_USER: str = "postgres"
+    DB_PASSWORD: str = "postgres"
 
     class Config:
         case_sensitive = True
