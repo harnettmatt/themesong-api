@@ -1,5 +1,6 @@
 FROM python:3.9
 
+# Make the working diretory
 WORKDIR /code
 
 # Copy files

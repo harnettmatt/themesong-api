@@ -5,6 +5,7 @@ class EnvironmentVariables(BaseSettings):
     # default values are for starting locally
     # specify .env file to adjust values
     HOST: str
+    FE_HOST: str
 
     STRAVA_CLIENT_ID: int
     STRAVA_CLIENT_SECRET: str
