@@ -1,7 +1,8 @@
-version: '3.8'
+version: '3.3'
 services:
   db:
     image: postgres:14.1-alpine
+    privileged: true
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -9,6 +10,7 @@ services:
     ports:
       - '5432:5432'
   api:
+    privileged: true
     build:
       context: .
       dockerfile: Dockerfile

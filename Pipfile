@@ -9,7 +9,7 @@ fastapi = "*"
 requests = "*"
 pydantic = "~=1.10.0"
 sqlalchemy = "*"
-psycopg2-binary = "*"
+psycopg2 = "*"
 pyjwt = {extras = ["crypto"], version = "*"}
 python-dotenv = "*"
 
