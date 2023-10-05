@@ -29,7 +29,7 @@ class SpotifyAuthParams(APIAuthParams):
     scope: str = "user-read-private user-read-email user-read-recently-played"
 
     def format_as_url(self) -> str:
-        return f"https://accounts.spotify.com/authorize?{urlencode((self.dict()), safe=':/')}"
+        return f"https://accounts.spotify.com/authorize?{urlencode((self.dict()))}"
 
 
 class SpotifyAuth(APIUserInfo):
