@@ -11,7 +11,8 @@ COPY ./app /code/app
 
 # Install dependencies
 RUN pip install pipenv
-RUN pipenv install
+RUN pip install --upgrade pip
+RUN pipenv install --system --deploy --ignore-pipfile
 
 # Run the app
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
