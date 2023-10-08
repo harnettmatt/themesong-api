@@ -1,5 +1,3 @@
-TODO: use this to conditionally install linux based packages vs mac based packages https://stackoverflow.com/questions/59266776/how-to-tell-pipenv-ignore-a-package-in-pipfile-based-on-the-os
-
 # API-template
 
 A WIP template service that allows users to associate items to groups.
