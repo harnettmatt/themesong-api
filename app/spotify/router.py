@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 
 from app.database.database import get_db_service
 from app.database.service import DatabaseService
+from app.settings import ENV_VARS
 from app.spotify import models, schemas
 from app.spotify.client import SpotifyAPIService
 from app.utils import generate_auth_state
@@ -56,4 +57,4 @@ def authorization(
     )
     db_service.merge(input_schema=spotify_user_info, model_type=models.SpotifyUserInfo)
 
-    return RedirectResponse(url=f"http://localhost:5173/spotify/{spotify_user_info.id}")
+    return RedirectResponse(url=f"{ENV_VARS.FE_HOST}/spotify/{spotify_user_info.id}")

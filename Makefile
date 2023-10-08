@@ -1,15 +1,15 @@
 # All
 start:
-	docker-compose up -d
+	docker compose up
 
 rebuild:
-	docker-compose up --build --force-recreate --detach
+	docker compose up --build --force-recreate
 
 stop:
-	docker-compose down
+	docker compose down
 
 delete:
-	docker-compose down --volumes
+	docker compose down --volumes
 
 docs:
 	open http://127.0.0.1:8000/docs
@@ -20,7 +20,7 @@ start-local: db-start
 
 # DB
 db-start:
-	docker-compose up -d db
+	docker compose up -d db
 
 db-connect:
 	docker exec -it themesong-db-1 bash

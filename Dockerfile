@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-buster
 
 # Make the working diretory
 WORKDIR /code
@@ -11,6 +11,7 @@ COPY ./app /code/app
 
 # Install dependencies
 RUN pip install pipenv
+RUN pip install --upgrade pip
 RUN pipenv install --system --deploy --ignore-pipfile
 
 # Run the app
