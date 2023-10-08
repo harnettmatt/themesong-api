@@ -1,9 +1,9 @@
 # All
 start:
-	docker compose up -d
+	docker compose up
 
 rebuild:
-	docker compose up --build --force-recreate --detach
+	docker compose up --build --force-recreate
 
 stop:
 	docker compose down
