@@ -60,7 +60,6 @@ def authorization(
     db_service.merge(input_schema=user, model_type=User)
     db_service.merge(input_schema=strava_user_info, model_type=StravaUserInfoModel)
 
-    # TODO: replace this with a hosted frontend url
     return RedirectResponse(url=f"{settings.ENV_VARS.FE_HOST}/strava/{user.id}")
 
 
