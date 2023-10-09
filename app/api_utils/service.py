@@ -1,5 +1,5 @@
-import json
 from abc import abstractmethod
+from datetime import datetime, timezone
 from typing import Optional, Type, TypeVar
 
 from fastapi import HTTPException
@@ -21,7 +21,11 @@ class APIService:
         self.db_service = db_service
 
     @abstractmethod
-    def check_auth(self):
+    def get_token_expiration_datetime(self) -> datetime:
+        raise NotImplementedError
+
+    @abstractmethod
+    def refresh_token(self) -> APIUserInfo:
         raise NotImplementedError
 
     @staticmethod
@@ -54,17 +58,28 @@ class APIService:
         data: Optional[dict] = None,
         headers: Optional[dict] = None,
     ) -> Response:
-        self.check_auth()
+        # refresh auth if necessary
+        self.auth()
+
+        # add auth header if not present
         if not headers:
             headers = {}
 
         if not headers.get("Authorization"):
             headers["Authorization"] = f"Bearer {self.user_info.access_token}"
 
-        print(json.dumps(headers))
-        print(json.dumps(params))
-        print(json.dumps(data))
-
         return self._execute(
             func=func, url=url, params=params, data=data, headers=headers
         )
+
+    def auth(self):
+        expiration = self.get_token_expiration_datetime()
+        if expiration > datetime.now(timezone.utc):
+            return
+        self.refresh_auth()
+
+    def refresh_auth(self):
+        new_auth = self.refresh_token()
+        new_user_info_data = self.user_info.dict() | new_auth.dict()
+        user_info_type = type(self.user_info)
+        self.user_info = user_info_type(**new_user_info_data)

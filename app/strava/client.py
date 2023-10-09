@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import List
 
 import requests
@@ -6,7 +6,7 @@ from requests import Response
 
 from app.api_utils.service import APIService
 from app.database.service import DatabaseService
-from app.strava import models, schemas
+from app.strava import schemas
 
 TOKEN_URL = "https://www.strava.com/oauth/token"
 API_PREFIX = "https://www.strava.com/api/v3"
@@ -20,20 +20,13 @@ class StravaAPIService(APIService):
     ) -> None:
         super().__init__(user_info=user_info, db_service=db_service)
 
-    def check_auth(self):
-        if self.user_info.expires_at > datetime.now(timezone.utc):
-            return
+    def get_token_expiration_datetime(self) -> datetime:
+        return self.user_info.expires_at
 
-        new_auth = self.refresh_token()
-        new_user_info_data = self.user_info.dict() | new_auth.dict()
-        self.user_info = schemas.StravaUserInfo(**new_user_info_data)
-
-        # TODO: do we need to make sure that in memory and db are in sync?
-        self.db_service.update(
-            id=self.user_info.id,
-            input_schema=self.user_info,
-            model_type=models.StravaUserInfo,
-        )
+    def refresh_token(self) -> schemas.StravaAuth:
+        params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
+        response = self._execute(requests.post, TOKEN_URL, params=params.dict())
+        return schemas.StravaAuth(**response.json())
 
     @classmethod
     def exchange_code(cls, code: str) -> schemas.StravaTokenResponse:
@@ -44,11 +37,6 @@ class StravaAPIService(APIService):
             params=params.dict(),
         )
         return schemas.StravaTokenResponse(**response.json())
-
-    def refresh_token(self) -> schemas.StravaAuth:
-        params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
-        response = self._execute(requests.post, TOKEN_URL, params=params.dict())
-        return schemas.StravaAuth(**response.json())
 
     def get_activity(self, id: int) -> schemas.StravaActivity:
         response = self._execute_with_auth(
