@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 import requests
@@ -21,7 +21,7 @@ class StravaAPIService(APIService):
         super().__init__(user_info=user_info, db_service=db_service)
 
     def check_auth(self):
-        if self.user_info.expires_at > datetime.utcnow():
+        if self.user_info.expires_at > datetime.now(timezone.utc):
             return
         new_auth = self.refresh_token()
         self.user_info = schemas.StravaUserInfo(

@@ -1,5 +1,5 @@
 import base64
-from datetime import datetime
+from datetime import datetime, timezone
 
 import requests
 from requests import Response
@@ -23,8 +23,8 @@ class SpotifyAPIService(APIService):
         super().__init__(user_info=user_info, db_service=db_service)
 
     def check_auth(self):
-        expires_at = datetime.utcnow() + self.user_info.expires_in
-        if expires_at > datetime.now():
+        expires_at = datetime.now(timezone.utc) + self.user_info.expires_in
+        if expires_at > datetime.now(timezone.utc):
             return
         new_auth = self.refresh_token()
         self.user_info = schemas.SpotifyUserInfo(
