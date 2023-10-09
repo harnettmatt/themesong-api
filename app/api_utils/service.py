@@ -55,7 +55,10 @@ class APIService:
         headers: Optional[dict] = None,
     ) -> Response:
         self.check_auth()
-        if headers and not headers.get("Authorization"):
+        if not headers:
+            headers = {}
+
+        if not headers.get("Authorization"):
             headers["Authorization"] = f"Bearer {self.user_info.access_token}"
 
         print(json.dumps(headers))
