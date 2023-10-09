@@ -46,9 +46,7 @@ class StravaAPIService(APIService):
 
     def refresh_token(self) -> schemas.StravaAuth:
         params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
-        response = self._execute_with_auth(
-            requests.post, TOKEN_URL, params=params.dict()
-        )
+        response = self._execute(requests.post, TOKEN_URL, params=params.dict())
         return schemas.StravaAuth(**response.json())
 
     def get_activity(self, id: int) -> schemas.StravaActivity:
