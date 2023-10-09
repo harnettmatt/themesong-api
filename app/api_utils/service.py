@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 from datetime import datetime, timezone
 from typing import Optional, Type, TypeVar
@@ -79,7 +80,11 @@ class APIService:
         self.refresh_auth()
 
     def refresh_auth(self):
+        print(json.dumps(self.user_info.dict()))
         new_auth = self.refresh_token()
+        print(json.dumps(new_auth.dict()))
         new_user_info_data = self.user_info.dict() | new_auth.dict()
+        print(new_user_info_data)
         user_info_type = type(self.user_info)
         self.user_info = user_info_type(**new_user_info_data)
+        print(json.dumps(self.user_info.dict()))
