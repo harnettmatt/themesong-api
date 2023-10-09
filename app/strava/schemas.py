@@ -4,10 +4,11 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlencode
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from app import settings
 from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
+from app.api_utils.timezone_aware import self_aware_datetime
 from app.id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
 
 
@@ -64,6 +65,10 @@ class StravaAuth(APIUserInfo):
     expires_at: datetime
     # expires_in: timedelta
 
+    @validator("expires_at", always=True)
+    def self_aware_datetime(cls, value: datetime) -> datetime:
+        return self_aware_datetime(value)
+
 
 class StravaUserInfo(IntIDBaseModel, StravaAuth):
     user_id: int
@@ -79,7 +84,11 @@ class StravaTokenResponse(StravaAuth):
 class StravaActivity(BaseModel):
     id: int
     start_date: datetime
-    description: Optional[str]
+    description: Optional[str] = None
+
+    @validator("start_date", always=True)
+    def self_aware_datetime(cls, value: datetime) -> datetime:
+        return self_aware_datetime(value)
 
 
 class StravaActivityStreamData(BaseModel):
