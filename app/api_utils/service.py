@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 from typing import Optional, Type, TypeVar
 
@@ -56,6 +57,11 @@ class APIService:
         self.check_auth()
         if headers and not headers.get("Authorization"):
             headers["Authorization"] = f"Bearer {self.user_info.access_token}"
+
+        print(json.dumps(headers))
+        print(json.dumps(params))
+        print(json.dumps(data))
+
         return self._execute(
             func=func, url=url, params=params, data=data, headers=headers
         )
