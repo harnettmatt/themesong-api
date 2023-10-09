@@ -23,10 +23,11 @@ class StravaAPIService(APIService):
     def check_auth(self):
         if self.user_info.expires_at > datetime.now(timezone.utc):
             return
+
         new_auth = self.refresh_token()
-        self.user_info = schemas.StravaUserInfo(
-            **new_auth.dict(), **self.user_info.dict()
-        )
+        new_user_info_data = self.user_info.dict() | new_auth.dict()
+        self.user_info = schemas.StravaUserInfo(**new_user_info_data)
+
         # TODO: do we need to make sure that in memory and db are in sync?
         self.db_service.update(
             id=self.user_info.id,
