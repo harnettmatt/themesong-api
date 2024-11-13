@@ -11,7 +11,7 @@ stop:
 delete:
 	docker compose down --volumes
 
-make public:
+public:
 	ngrok http http://127.0.0.1:8000
 
 docs:
