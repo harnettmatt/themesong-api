@@ -26,5 +26,3 @@ services:
         - action: sync+restart
           path: ./app
           target: /code/app
-        - action: rebuild
-          path: Pipfile
