@@ -33,7 +33,7 @@ class SpotifyAuthParams(APIAuthParams):
 
 
 class SpotifyAuth(APIUserInfo):
-    expires_in: timedelta
+    pass
 
 
 class SpotifyTokenResponse(SpotifyAuth):
@@ -84,9 +84,9 @@ class SpotifyRecentlyPlayedResponse(BaseModel):
             # max_hr_date_time is later than the track
             elif start_time < max_hr_date_time and end_time < max_hr_date_time:
                 continue
-            # max_hr_date_time is earlier than the track
+            # max_hr_date_time is earlier than the tracks returned - spofity only returns 50 tracks :(
             else:
-                raise Exception("Didn't search for tracks far enough back in time")
+                print("Didn't search for tracks far enough back in time")
 
         return None
 

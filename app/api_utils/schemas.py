@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional, Union
 
@@ -12,6 +13,7 @@ class RequestGrantType(str, Enum):
 class APIUserInfo(BaseModel):
     access_token: str
     refresh_token: str
+    expires_at: datetime
 
 
 class APIAuthParams(BaseModel):

@@ -34,6 +34,7 @@ class StravaService:
         if activity.description and "Theme Song:" in activity.description:
             return
 
+        # TODO: track.href is None in some scenarios? - need to figure out why its None and then handle it, if None is a valid value
         theme_song_string = f"Theme Song: {track.name} - {track.href}"
         if activity.description:
             description = f"{activity.description} \n{theme_song_string}"

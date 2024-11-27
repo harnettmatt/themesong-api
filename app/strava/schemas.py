@@ -60,9 +60,7 @@ class StravaAthlete(IntIDBaseModel):
 
 
 class StravaAuth(APIUserInfo):
-    # token_type: str
-    expires_at: datetime
-    # expires_in: timedelta
+    pass
 
 
 class StravaUserInfo(IntIDBaseModel, StravaAuth):

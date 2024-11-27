@@ -15,7 +15,7 @@ class SpotifyUserInfo(Persistable):
     user_id = Column(Integer, ForeignKey("users.id"))
     access_token = Column(String)
     refresh_token = Column(String)
-    expires_in = Column(Integer)
+    expires_at = Column(String)
 
 
 class SpotifyAuthStateParam(Persistable):

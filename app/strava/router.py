@@ -1,4 +1,5 @@
 """Routing handler for /strava"""
+import json
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
@@ -87,5 +88,6 @@ def receive_event(
     """
     Recieves event from Strava for processing
     """
+    print(f'webhook request: {json.dumps(request_body.json())}')
     # TODO: do i need to check that the request contains the verify_token? How do I know that the request is coming from Strava?
     return StravaWebhookHandler(request_body, db_service).handle()

@@ -4,13 +4,16 @@ from pydantic import BaseSettings
 class EnvironmentVariables(BaseSettings):
     # default values are for starting locally
     # specify .env file to adjust values
-    HOST: str
+
+    HOST: str  # ngrox url or public url for API (used for 3rd party API redirects)
     FE_HOST: str
 
+    # Credentials for Strava API are different for dev and prod
     STRAVA_CLIENT_ID: int
     STRAVA_CLIENT_SECRET: str
-    STRAVA_WEBHOOK_TOKEN: str
+    STRAVA_WEBHOOK_TOKEN: str  # TODO: this webhook token keeps regenerating on strava's end - Figure out handle this properly
 
+    # Credentials for Spotify API are the same between dev and prod
     SPOTIFY_CLIENT_ID: str
     SPOTIFY_CLIENT_SECRET: str
 
