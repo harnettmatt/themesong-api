@@ -1,5 +1,6 @@
 import base64
 from datetime import datetime, timedelta, timezone
+import logging
 
 import requests
 from requests import Response
@@ -38,6 +39,7 @@ class SpotifyAPIService(APIService):
         )
 
     def refresh_token(self) -> schemas.SpotifyAuth:
+        logging.info(f'Refreshing Spotify token for user: {self.user_info.id}')
         request_body = schemas.SpotifyTokenRequest(
             grant_type=RequestGrantType.REFRESH_TOKEN,
             refresh_token=self.user_info.refresh_token,
@@ -50,7 +52,7 @@ class SpotifyAPIService(APIService):
         )
         expires_at = datetime.now(timezone.utc) + timedelta(seconds=response.json().get('expires_in'))
         return schemas.SpotifyAuth(
-            **response.json(), 
+            **response.json(),
             refresh_token=self.user_info.refresh_token,
             expires_at=expires_at
         )

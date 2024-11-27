@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import logging
 from typing import List
 
 import requests
@@ -46,6 +47,7 @@ class StravaAPIService(APIService):
         return schemas.StravaTokenResponse(**response.json())
 
     def refresh_token(self) -> schemas.StravaAuth:
+        logging.info(f'Refreshing Strava token for user: {self.user_info.id}')
         params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
         response = self._execute(requests.post, TOKEN_URL, params=params.dict())
         return schemas.StravaAuth(**response.json())

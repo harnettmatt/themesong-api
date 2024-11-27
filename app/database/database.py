@@ -1,5 +1,4 @@
 """Module containing all database setup"""
-
 from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker

@@ -33,9 +33,7 @@ class APIService:
         headers: Optional[dict] = None,
     ) -> Response:
         response: Response = func(url, headers=headers, params=params, data=data)
-        log_message = f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\n"
-        log_message += f"Response: {response}"
-        logging.info(log_message)
+        logging.debug(f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\nResponse: {response}")
         response.raise_for_status()
         return response
 
