@@ -1,3 +1,4 @@
+import logging
 from fastapi import HTTPException
 
 from app.database.service import DatabaseService
@@ -21,13 +22,11 @@ class StravaWebhookHandler:
 
     def handle(self):
         if self.event.object_type != schemas.StravaObjectType.ACTIVITY:
-            print("object type not supported")
             return
         if self.event.aspect_type not in (
             schemas.StravaAspectType.UPDATE,
             schemas.StravaAspectType.CREATE,
         ):
-            print("aspect type not supported")
             return
         return self._handle_activity_update_and_create()
 
@@ -53,13 +52,13 @@ class StravaWebhookHandler:
         activity = strava_service.api.get_activity(self.event.object_id)
         max_hr_date_time = strava_service.get_max_hr_date_time_for_activity(activity)
         if max_hr_date_time is None:
-            print("could not find max hr")
+            logging.info(f"Could not find a max heart rate for the following activity: {activity.json()}")
             return
 
         # get track
         track = spotify_service.get_track_for_datetime(max_hr_date_time)
         if track is None:
-            print("could not find track")
+            logging.info(f"Could not find a track for the following datetime: {max_hr_date_time}")
             return
 
         # update activity
