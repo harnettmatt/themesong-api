@@ -55,9 +55,7 @@ view-strava-subscription:
 		-d client_id=${STRAVA_CLIENT_ID} \
 		-d client_secret=${STRAVA_CLIENT_SECRET}
 
+# TODO: need to fetch the subscription id from the view-strava-subscription command and use it in this command
 delete-strava-subscription:
 	curl -X DELETE "https://www.strava.com/api/v3/push_subscriptions/268519?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}"
 
-get-strava-info:
-	curl -G https://www.strava.com/api/v3/athlete \
-		-d access_token=
