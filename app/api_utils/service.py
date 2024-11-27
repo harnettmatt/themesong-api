@@ -56,6 +56,8 @@ class APIService:
         self.check_auth()
         if headers and not headers.get("Authorization"):
             headers["Authorization"] = f"Bearer {self.user_info.access_token}"
+        else:
+            headers = {"Authorization": f"Bearer {self.user_info.access_token}"}
         return self._execute(
             func=func, url=url, params=params, data=data, headers=headers
         )

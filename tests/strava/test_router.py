@@ -58,7 +58,7 @@ def test_authorization(test_client, mocker, local_session):
     )
     # Assert
     assert response.status_code == 307
-    assert response.headers["location"] == "http://localhost:5173/strava/123"
+    assert response.headers["location"] == "http://localhost:8080/strava/123"
 
     user = local_session.query(User).get(123)
     assert user is not None
@@ -130,7 +130,7 @@ def test_receive_event(test_client, mocker, local_session):
         user_id=123,
         access_token="123",
         refresh_token="123",
-        expires_in=3600,
+        expires_at=datetime(2023, 7, 9, 0, 0, 0, 0).strftime("%Y-%m-%dT%H:%M:%S"),
     )
     local_session.add_all([user, strava_user_info, spotify_user_info])
     local_session.commit()

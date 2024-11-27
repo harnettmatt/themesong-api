@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime
 
 from app.spotify.models import SpotifyAuthStateParam, SpotifyUserInfo
 from app.spotify.schemas import SpotifyTokenResponse, SpotifyUserResponse
@@ -31,7 +31,7 @@ def test_authorization(test_client, mocker, local_session):
     spotify_token_response = SpotifyTokenResponse(
         access_token="789",
         refresh_token="abc",
-        expires_in=timedelta(seconds=3600),
+        expires_at=datetime(2023, 7, 9, 0, 0, 0, 0),
     )
     mocker.patch(
         "app.spotify.router.SpotifyAPIService.exchange_code",
@@ -48,7 +48,7 @@ def test_authorization(test_client, mocker, local_session):
     )
     # Assert
     assert response.status_code == 307
-    assert response.headers["Location"] == "http://localhost:5173/spotify/def"
+    assert response.headers["Location"] == "http://localhost:8080/spotify/def"
 
     spotify_user_info = local_session.query(SpotifyUserInfo).get("def")
     assert spotify_user_info is not None

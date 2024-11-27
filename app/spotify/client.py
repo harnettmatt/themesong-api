@@ -1,5 +1,6 @@
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+import json
 
 import requests
 from requests import Response
@@ -9,6 +10,7 @@ from app.api_utils.schemas import RequestGrantType
 from app.api_utils.service import APIService
 from app.database.service import DatabaseService
 from app.spotify import schemas
+from app.spotify import models
 
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 SPOTIFY_BASE_URL = "https://api.spotify.com/v1"
@@ -23,12 +25,17 @@ class SpotifyAPIService(APIService):
         super().__init__(user_info=user_info, db_service=db_service)
 
     def check_auth(self):
-        expires_at = datetime.now(timezone.utc) + self.user_info.expires_in
-        if expires_at > datetime.now(timezone.utc):
+        if self.user_info.expires_at > datetime.now(timezone.utc):
             return
         new_auth = self.refresh_token()
-        self.user_info = schemas.SpotifyUserInfo(
-            **new_auth.dict(), **self.user_info.dict()
+        new_user_info_data = self.user_info.dict() | new_auth.dict()
+        self.user_info = schemas.SpotifyUserInfo(**new_user_info_data)
+
+        # TODO: do we need to make sure that in memory and db are in sync?
+        self.db_service.update(
+            id=self.user_info.id,
+            input_schema=self.user_info,
+            model_type=models.SpotifyUserInfo,
         )
 
     def refresh_token(self) -> schemas.SpotifyAuth:
@@ -42,7 +49,12 @@ class SpotifyAPIService(APIService):
             data=request_body.dict(),
             headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
-        return schemas.SpotifyAuth(**response.json())
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=response.json().get('expires_in'))
+        return schemas.SpotifyAuth(
+            **response.json(), 
+            refresh_token=self.user_info.refresh_token,
+            expires_at=expires_at
+        )
 
     @staticmethod
     def get_encoded_token() -> str:
@@ -62,8 +74,9 @@ class SpotifyAPIService(APIService):
             data=request_body.dict(),
             headers={"Authorization": f"Basic {cls.get_encoded_token()}"},
         )
-
-        return schemas.SpotifyTokenResponse(**response.json())
+        # TODO: expires_at should be a function. maybe this is a property of some kind on SpotifyTokenResponse?
+        expires_at = datetime.now(timezone.utc) + timedelta(seconds=response.json().get('expires_in'))
+        return schemas.SpotifyTokenResponse(**response.json(), expires_at=expires_at)
 
     # if we use this function somewhere else it will need to be refactored to have refresh token logic
     @classmethod
@@ -86,4 +99,5 @@ class SpotifyAPIService(APIService):
                 after=after_milliseconds, limit=limit
             ).dict(),
         )
+        print(f'Spotify get_recently_played: {json.dumps(response.json())}')
         return schemas.SpotifyRecentlyPlayedResponse(**response.json())
