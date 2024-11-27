@@ -21,3 +21,10 @@ services:
       DB_HOST: db
     ports:
       - '8000:8000'
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./app
+          target: /code/app
+        - action: rebuild
+          path: Pipfile

@@ -6,24 +6,17 @@ export
 start:
 	docker compose up
 
+watch:
+	docker compose up --build --force-recreate --watch
+
 rebuild:
 	docker compose up --build --force-recreate --detach
-
-stop:
-	docker compose down
-
-delete:
-	docker compose down --volumes
 
 public:
 	ngrok http http://127.0.0.1:8000
 
 docs:
 	open http://127.0.0.1:8000/docs
-
-# Local
-start-local: db-start
-	pipenv run uvicorn app.main:app --reload
 
 # DB
 db-start:
