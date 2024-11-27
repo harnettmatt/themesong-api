@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import json
 from typing import List
 
 import requests
@@ -55,7 +54,6 @@ class StravaAPIService(APIService):
         response = self._execute_with_auth(
             requests.get, f"{API_PREFIX}/activities/{id}"
         )
-        print(f'Strava get_activity: {json.dumps(response.json())}')
         return schemas.StravaActivity(**response.json())
 
     def get_stream_for_activity(
@@ -70,7 +68,6 @@ class StravaAPIService(APIService):
             f"{API_PREFIX}/activities/{id}/streams",
             params={"keys": stream_keys_str, "key_by_type": str(key_by_type).lower()},
         )
-        print(f'Strava get_stream_for_activity: {json.dumps(response.json())}')
         return schemas.StravaActivityStream(**response.json())
 
     def update_activity(self, id: int, data: dict):

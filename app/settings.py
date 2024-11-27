@@ -23,6 +23,8 @@ class EnvironmentVariables(BaseSettings):
     DB_USER: str = "postgres"
     DB_PASSWORD: str = "postgres"
 
+    LOG_LEVEL: str = "WARNING"
+
     class Config:
         case_sensitive = True
 

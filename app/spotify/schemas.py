@@ -86,7 +86,7 @@ class SpotifyRecentlyPlayedResponse(BaseModel):
                 continue
             # max_hr_date_time is earlier than the tracks returned - spofity only returns 50 tracks :(
             else:
-                print("Didn't search for tracks far enough back in time")
+                pass
 
         return None
 

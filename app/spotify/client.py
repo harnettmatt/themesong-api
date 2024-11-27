@@ -1,6 +1,5 @@
 import base64
 from datetime import datetime, timedelta, timezone
-import json
 
 import requests
 from requests import Response
@@ -99,5 +98,4 @@ class SpotifyAPIService(APIService):
                 after=after_milliseconds, limit=limit
             ).dict(),
         )
-        print(f'Spotify get_recently_played: {json.dumps(response.json())}')
         return schemas.SpotifyRecentlyPlayedResponse(**response.json())
