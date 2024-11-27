@@ -22,6 +22,7 @@ httpx = "*" # https://github.com/tiangolo/fastapi/issues/5656
 mypy = "*"
 types-requests = "*"
 pytest-cov = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.9.6"

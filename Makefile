@@ -34,7 +34,7 @@ unit-tests:
 
 int-tests: db-start-detach
 	pipenv run pytest -m "integtest"
-	
+
 # strava
 create-strava-subscription:
 	curl -X POST https://www.strava.com/api/v3/push_subscriptions \
