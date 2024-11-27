@@ -27,14 +27,14 @@ class DatabaseService:
         """
         Gets object from db for a given model and id
         """
-        logging.debug(f'DB Service getting type: {model_type} for id: {id}')
+        logging.debug(f"DB Service getting type: {model_type} for id: {id}")
         return self.session.query(model_type).get(id)
 
     def all(self, model_type: Type[P], skip: int = 0, limit: int = 100) -> list[P]:
         """
         Gets all objects from db for a given model and optional limiting
         """
-        logging.debug(f'DB Service getting all: {model_type}')
+        logging.debug(f"DB Service getting all: {model_type}")
         return self.session.query(model_type).offset(skip).limit(limit).all()
 
     def create(self, input_schema: BaseModel, model_type: Type[P]):
@@ -43,7 +43,7 @@ class DatabaseService:
         """
         model_object = model_type(**jsonable_encoder(input_schema))
 
-        logging.debug(f'DB Service creating: {model_object}')
+        logging.debug(f"DB Service creating: {model_object}")
         self.session.add(model_object)
         self.session.commit()
 
@@ -57,14 +57,14 @@ class DatabaseService:
         if model_object is None:
             return None
 
-        logging.debug(f'DB Service deleting: {model_object}')
+        logging.debug(f"DB Service deleting: {model_object}")
         return self.delete_instance(model=model_object)
 
     def delete_instance(self, model: P) -> P:
         """
         Deletes object from db
         """
-        logging.debug(f'DB Service deleting instance: {model}')
+        logging.debug(f"DB Service deleting instance: {model}")
         self.session.delete(model)
         self.session.commit()
 
@@ -84,7 +84,7 @@ class DatabaseService:
             input=input_schema, model_object=model_object
         )
 
-        logging.debug(f'DB Service updating: {model_object}')
+        logging.debug(f"DB Service updating: {model_object}")
         self.session.add(updated_model_object)
         self.session.commit()
 
@@ -96,7 +96,7 @@ class DatabaseService:
         """
         model_object = model_type(**jsonable_encoder(input_schema))
 
-        logging.debug(f'DB Service merging: {model_object}')
+        logging.debug(f"DB Service merging: {model_object}")
         self.session.merge(model_object)
         self.session.commit()
 

@@ -14,8 +14,7 @@ ROUTER = APIRouter()
 
 @ROUTER.get("/", response_model=list[schemas.User])
 def get_all(
-    session: Session = Depends(get_session), 
-    user_id: int = Depends(get_current_user_id)
+    session: Session = Depends(get_session), user_id: int = Depends(get_current_user_id)
 ) -> Any:
     """
     Gets all users

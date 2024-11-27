@@ -1,6 +1,6 @@
 import base64
-from datetime import datetime, timedelta, timezone
 import logging
+from datetime import datetime, timedelta, timezone
 
 import requests
 from requests import Response
@@ -9,8 +9,7 @@ from app import settings
 from app.api_utils.schemas import RequestGrantType
 from app.api_utils.service import APIService
 from app.database.service import DatabaseService
-from app.spotify import schemas
-from app.spotify import models
+from app.spotify import models, schemas
 
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 SPOTIFY_BASE_URL = "https://api.spotify.com/v1"
@@ -39,7 +38,7 @@ class SpotifyAPIService(APIService):
         )
 
     def refresh_token(self) -> schemas.SpotifyAuth:
-        logging.info(f'Refreshing Spotify token for user: {self.user_info.id}')
+        logging.info(f"Refreshing Spotify token for user: {self.user_info.id}")
         request_body = schemas.SpotifyTokenRequest(
             grant_type=RequestGrantType.REFRESH_TOKEN,
             refresh_token=self.user_info.refresh_token,
@@ -50,11 +49,13 @@ class SpotifyAPIService(APIService):
             data=request_body.dict(),
             headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
-        expires_at = datetime.now(timezone.utc) + timedelta(seconds=response.json().get('expires_in'))
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            seconds=response.json().get("expires_in")
+        )
         return schemas.SpotifyAuth(
             **response.json(),
             refresh_token=self.user_info.refresh_token,
-            expires_at=expires_at
+            expires_at=expires_at,
         )
 
     @staticmethod
@@ -76,7 +77,9 @@ class SpotifyAPIService(APIService):
             headers={"Authorization": f"Basic {cls.get_encoded_token()}"},
         )
         # TODO: expires_at should be a function. maybe this is a property of some kind on SpotifyTokenResponse?
-        expires_at = datetime.now(timezone.utc) + timedelta(seconds=response.json().get('expires_in'))
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            seconds=response.json().get("expires_in")
+        )
         return schemas.SpotifyTokenResponse(**response.json(), expires_at=expires_at)
 
     # if we use this function somewhere else it will need to be refactored to have refresh token logic

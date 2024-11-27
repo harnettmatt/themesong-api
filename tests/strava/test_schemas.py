@@ -1,14 +1,13 @@
 from datetime import timedelta
+
 from app.strava.schemas import StravaActivityStream
 
 
 def test_get_max_heartrate_time_mark():
     # Arrange
     test_data = {
-        "distance":
-        {
-            "data":
-            [
+        "distance": {
+            "data": [
                 0.0,
                 1.0,
                 1.9,
@@ -3233,16 +3232,14 @@ def test_get_max_heartrate_time_mark():
                 26839.5,
                 26842.4,
                 26845.4,
-                26846.4
+                26846.4,
             ],
             "series_type": "distance",
             "original_size": 3225,
-            "resolution": "high"
+            "resolution": "high",
         },
-        "heartrate":
-        {
-            "data":
-            [
+        "heartrate": {
+            "data": [
                 94,
                 91,
                 84,
@@ -6467,16 +6464,14 @@ def test_get_max_heartrate_time_mark():
                 102,
                 105,
                 107,
-                107
+                107,
             ],
             "series_type": "distance",
             "original_size": 3225,
-            "resolution": "high"
+            "resolution": "high",
         },
-        "time":
-        {
-            "data":
-            [
+        "time": {
+            "data": [
                 0,
                 1,
                 2,
@@ -9701,12 +9696,12 @@ def test_get_max_heartrate_time_mark():
                 6917,
                 6919,
                 6922,
-                6923
+                6923,
             ],
             "series_type": "distance",
             "original_size": 3225,
-            "resolution": "high"
-        }
+            "resolution": "high",
+        },
     }
     activity_stream = StravaActivityStream(**test_data)
 

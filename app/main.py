@@ -1,5 +1,6 @@
 """Routing for /"""
 import logging
+
 from fastapi import FastAPI
 
 from app.health import ROUTER as HEALTH_ROUTER

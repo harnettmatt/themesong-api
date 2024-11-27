@@ -1,5 +1,5 @@
-from abc import abstractmethod
 import logging
+from abc import abstractmethod
 from typing import Optional, Type, TypeVar
 
 from fastapi import HTTPException
@@ -33,7 +33,9 @@ class APIService:
         headers: Optional[dict] = None,
     ) -> Response:
         response: Response = func(url, headers=headers, params=params, data=data)
-        logging.debug(f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\nResponse: {response}")
+        logging.debug(
+            f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\nResponse: {response}"
+        )
         response.raise_for_status()
         return response
 
