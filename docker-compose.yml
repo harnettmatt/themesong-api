@@ -30,3 +30,6 @@ services:
           target: /code/app
     networks:
       - themesong-network
+networks:
+  themesong-network:
+    external: true
