@@ -7,6 +7,8 @@ services:
       - .env
     ports:
       - '54320:5432'
+    networks:
+      - themesong-network
   api:
     privileged: true
     build:
@@ -26,3 +28,5 @@ services:
         - action: sync+restart
           path: ./app
           target: /code/app
+    networks:
+      - themesong-network
