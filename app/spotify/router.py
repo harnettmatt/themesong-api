@@ -7,7 +7,7 @@ from app.database.service import DatabaseService
 from app.settings import ENV_VARS
 from app.spotify import models, schemas
 from app.spotify.client import SpotifyAPIService
-from tests.utils import generate_auth_state
+from app.utils import generate_auth_state
 
 ROUTER = APIRouter()
 

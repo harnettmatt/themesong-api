@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: themesong-db
     image: postgres:14.1-alpine
     privileged: true
     restart: always
@@ -7,7 +8,10 @@ services:
       - .env
     ports:
       - '54320:5432'
+    networks:
+      - themesong-network
   api:
+    container_name: themesong-api
     privileged: true
     build:
       context: .
@@ -26,3 +30,8 @@ services:
         - action: sync+restart
           path: ./app
           target: /code/app
+    networks:
+      - themesong-network
+networks:
+  themesong-network:
+    external: true
