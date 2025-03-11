@@ -1,4 +1,4 @@
-name: Deploy to Raspberry Pi
+name: Deploy
 on:
   push:
     branches:
