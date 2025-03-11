@@ -22,4 +22,4 @@ jobs:
           script: |
             cd ${{github.event.repository.name}}
             git pull origin main
-            make rebuild
+            sudo make rebuild
