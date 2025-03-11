@@ -18,8 +18,8 @@ jobs:
         with:
           host: ${{secrets.PI_HOST}}
           username: ${{secrets.PI_USERNAME}}
-          password: ${{secrets.PI_PASSWORD}}
+          key: ${{secrets.PI_KEY}}
           script: |
-            cd themesong-api
+            cd ${{github.event.repository.name}}
             git pull origin main
             make rebuild
