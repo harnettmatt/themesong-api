@@ -1,0 +1,25 @@
+name: Deploy to Raspberry Pi
+on:
+  push:
+    branches:
+      - main
+  # TODO: remove when done testing
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Raspberry Pi
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{secrets.PI_HOST}}
+          username: ${{secrets.PI_USERNAME}}
+          password: ${{secrets.PI_PASSWORD}}
+          script: |
+            cd themesong-api
+            git pull origin main
+            make rebuild
