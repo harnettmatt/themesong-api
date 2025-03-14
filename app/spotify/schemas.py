@@ -10,6 +10,7 @@ from app.id_base_model.schemas import StrIDBaseModel
 
 
 class SpotifyTokenRequest(APITokenRequest):
+    client_id: str = settings.ENV_VARS.SPOTIFY_CLIENT_ID
     redirect_uri: Optional[str] = None
 
     @validator("redirect_uri", always=True)
