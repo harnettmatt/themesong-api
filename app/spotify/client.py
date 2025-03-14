@@ -47,6 +47,7 @@ class SpotifyAPIService(APIService):
             requests.post,
             SPOTIFY_TOKEN_URL,
             data=request_body.dict(exclude_none=True),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
             # headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
         expires_at = datetime.now(timezone.utc) + timedelta(
