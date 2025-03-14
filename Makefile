@@ -23,7 +23,13 @@ db-start:
 	docker compose up -d db
 
 db-connect:
-	docker exec -it themesong-db-1 bash
+	docker exec -it themesong-db bash
+
+tail:
+	docker container logs -f themesong-api
+
+tail-db:
+	docker container logs -f themesong-db
 
 # Dev Tools
 lint:

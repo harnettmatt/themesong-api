@@ -34,7 +34,7 @@ class APIService:
     ) -> Response:
         response: Response = func(url, headers=headers, params=params, data=data)
         logging.debug(
-            f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\nResponse: {response}"
+            f"Request: {url}\n  Params: {params}\n  Data: {data}\n  Headers: {headers}\nResponse: {response.json()}"
         )
         response.raise_for_status()
         return response

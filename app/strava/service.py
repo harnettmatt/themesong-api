@@ -1,4 +1,6 @@
 from datetime import datetime
+import logging
+import os
 from typing import Optional
 
 from app.spotify.schemas import SpotifyTrack
@@ -31,16 +33,18 @@ class StravaService:
     def update_activity_with_track(
         self, activity: schemas.StravaActivity, track: SpotifyTrack
     ):
-        if activity.description and "Theme Song:" in activity.description:
+
+        description_prefix = "Theme Song DEV:" if os.environ.get("ENV") == "dev" else "Theme Song:"
+        if activity.description and description_prefix in activity.description:
             return
 
         # TODO: track.href is None in some scenarios? - need to figure out why its None and then handle it, if None is a valid value
-        theme_song_string = f"Theme Song: {track.name} - {track.href}"
+        theme_song_string = f"{description_prefix} {track.name} - {track.href}"
         if activity.description:
             description = f"{activity.description} \n{theme_song_string}"
         else:
             description = theme_song_string
-
+        
         self.api.update_activity(
             id=activity.id,
             data={"description": description},
