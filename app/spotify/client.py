@@ -40,14 +40,14 @@ class SpotifyAPIService(APIService):
     def refresh_token(self) -> schemas.SpotifyAuth:
         logging.info(f"Refreshing Spotify token for user: {self.user_info.id}")
         request_body = schemas.SpotifyTokenRequest(
-            grant_type=RequestGrantType.REFRESH_TOKEN,
+            grant_type="refresh_token",
             refresh_token=self.user_info.refresh_token,
         )
         response = self._execute(
             requests.post,
             SPOTIFY_TOKEN_URL,
-            data=request_body.dict(exclude_none=True),
-            headers={"Authorization": f"Basic {self.get_encoded_token()}"},
+            data=request_body.dict(),
+            # headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
         expires_at = datetime.now(timezone.utc) + timedelta(
             seconds=response.json().get("expires_in")
