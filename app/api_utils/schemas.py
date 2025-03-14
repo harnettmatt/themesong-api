@@ -27,7 +27,7 @@ class APIAuthParams(BaseModel):
 class APITokenRequest(BaseModel):
     refresh_token: Optional[str] = None
     code: Optional[str] = None
-    grant_type: RequestGrantType = RequestGrantType.AUTHORIZATION_CODE
+    grant_type: str
 
     @root_validator(pre=True)
     def validate_code_or_refresh_token(cls, values):
