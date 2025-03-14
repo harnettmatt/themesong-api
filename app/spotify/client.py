@@ -46,7 +46,7 @@ class SpotifyAPIService(APIService):
         response = self._execute(
             requests.post,
             SPOTIFY_TOKEN_URL,
-            data=request_body.dict(),
+            data=request_body.dict(exclude_none=True),
             # headers={"Authorization": f"Basic {self.get_encoded_token()}"},
         )
         expires_at = datetime.now(timezone.utc) + timedelta(
