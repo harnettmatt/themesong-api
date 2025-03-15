@@ -18,6 +18,12 @@ public:
 docs:
 	open http://127.0.0.1:8000/docs
 
+tail-logs-api:
+	docker container logs -f themesong-api
+
+tail-logs-db:
+	docker container logs -f themesong-db
+
 # DB
 db-start:
 	docker compose up -d db
