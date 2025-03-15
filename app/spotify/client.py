@@ -45,7 +45,8 @@ class SpotifyAPIService(APIService):
         response = self._execute(
             requests.post,
             SPOTIFY_TOKEN_URL,
-            data=request_body.dict(),
+            data=request_body.dict(exclude_none=True),
+            headers={"Content-Type: application/x-www-form-urlencoded"}
         )
         expires_at = datetime.now(timezone.utc) + timedelta(
             seconds=response.json().get("expires_in")
