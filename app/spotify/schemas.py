@@ -5,13 +5,13 @@ from urllib.parse import urlencode
 from pydantic import BaseModel, validator
 
 from app import settings
-from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo, RequestGrantType
+from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
 from app.id_base_model.schemas import StrIDBaseModel
 
 
 class SpotifyRefreshTokenRequest(APITokenRequest):
     refresh_token: str
-    grant_type: RequestGrantType = RequestGrantType.REFRESH_TOKEN
+    grant_type: str = "refresh_token"
     client_id: str = settings.ENV_VARS.SPOTIFY_CLIENT_ID
     client_secret: str = settings.ENV_VARS.SPOTIFY_CLIENT_SECRET
 
