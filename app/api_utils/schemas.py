@@ -29,6 +29,9 @@ class APITokenRequest(BaseModel):
     code: Optional[str] = None
     grant_type: RequestGrantType = RequestGrantType.AUTHORIZATION_CODE
 
+    # class Config:
+    #     use_enum_values = True
+
     @root_validator(pre=True)
     def validate_code_or_refresh_token(cls, values):
         if values.get("refresh_token") and values.get("code"):

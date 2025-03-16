@@ -31,6 +31,8 @@ class SpotifyAPIService(APIService):
         self.user_info = schemas.SpotifyUserInfo(**new_user_info_data)
 
         # TODO: do we need to make sure that in memory and db are in sync?
+        # TODO: remove this dependency on the database service. maybe just return the new spotify user info and let the caller handle the update?
+        #        also needs to make sure that the parent service can remove this dependency as well
         self.db_service.update(
             id=self.user_info.id,
             input_schema=self.user_info,
