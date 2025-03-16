@@ -29,13 +29,17 @@ class StravaService:
         return activity.start_date + max_hr_time_mark
 
     def update_activity_with_track(
-        self, activity: schemas.StravaActivity, track: SpotifyTrack
+        self, activity: schemas.StravaActivity, track: Optional[SpotifyTrack]
     ):
         if activity.description and "Theme Song:" in activity.description:
             return
 
         # TODO: track.href is None in some scenarios? - need to figure out why its None and then handle it, if None is a valid value
-        theme_song_string = f"Theme Song: {track.name} - {track.href}"
+        theme_song_string = (
+            f"Theme Song: {track.name} - {track.href}"
+            if track is not None
+            else "Theme Song: sweet sounds of silence"
+        )
         if activity.description:
             description = f"{activity.description} \n{theme_song_string}"
         else:
