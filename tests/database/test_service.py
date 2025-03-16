@@ -1,13 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String
 
 from app.database.service import DatabaseService
 from app.persistable.models import Persistable
 
 
-class MockSchemaCreate(BaseModel):
+class MockSchemaCreate:
     """
     Test schema create
     """

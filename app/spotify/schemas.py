@@ -2,11 +2,16 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from urllib.parse import urlencode
 
-from pydantic import BaseModel, validator
+from pydantic import validator
 
 from app import settings
-from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo, RequestGrantType
-from app.id_base_model.schemas import StrIDBaseModel
+from app.api_utils.schemas import (
+    APIAuthParams,
+    APITokenRequest,
+    APIUserInfo,
+    RequestGrantType,
+)
+from app.id_base_model.schemas import CustomBaseModel, StrIDBaseModel
 
 
 class SpotifyRefreshTokenRequest(APITokenRequest):
@@ -51,28 +56,28 @@ class SpotifyUserResponse(StrIDBaseModel):
     pass
 
 
-class SpotifyRecentlyPlayedRequest(BaseModel):
+class SpotifyRecentlyPlayedRequest(CustomBaseModel):
     limit: int
     after: int
 
 
-class SpotifyExternalUrls(BaseModel):
+class SpotifyExternalUrls(CustomBaseModel):
     spotify: str
 
 
-class SpotifyTrack(BaseModel):
+class SpotifyTrack(CustomBaseModel):
     id: str
     duration_ms: int
     name: str
     href: str  # link to the api to get more details on track
 
 
-class SpotifyPlayHistoryObject(BaseModel):
+class SpotifyPlayHistoryObject(CustomBaseModel):
     track: SpotifyTrack
     played_at: datetime
 
 
-class SpotifyRecentlyPlayedResponse(BaseModel):
+class SpotifyRecentlyPlayedResponse(CustomBaseModel):
     next: Optional[str]
     items: List[SpotifyPlayHistoryObject]
 

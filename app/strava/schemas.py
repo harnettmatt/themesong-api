@@ -4,11 +4,9 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlencode
 
-from pydantic import BaseModel
-
 from app import settings
 from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo
-from app.id_base_model.schemas import IntIDBaseModel, StrIDBaseModel
+from app.id_base_model.schemas import CustomBaseModel, IntIDBaseModel, StrIDBaseModel
 
 
 class StravaAspectType(str, Enum):
@@ -41,7 +39,7 @@ class StravaAuthParams(APIAuthParams):
         return f"http://www.strava.com/oauth/authorize?{urlencode(self.dict())}"
 
 
-class StravaWebhookInput(BaseModel):
+class StravaWebhookInput(CustomBaseModel):
     aspect_type: StravaAspectType
     object_id: int  # activity id or athelete id depending on object_type
     object_type: StravaObjectType
@@ -74,17 +72,17 @@ class StravaTokenResponse(StravaAuth):
     athlete: StravaAthlete
 
 
-class StravaActivity(BaseModel):
+class StravaActivity(CustomBaseModel):
     id: int
     start_date: datetime
     description: Optional[str]
 
 
-class StravaActivityStreamData(BaseModel):
+class StravaActivityStreamData(CustomBaseModel):
     data: list[float]
 
 
-class StravaActivityStream(BaseModel):
+class StravaActivityStream(CustomBaseModel):
     heartrate: StravaActivityStreamData
     time: StravaActivityStreamData
 

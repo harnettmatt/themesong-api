@@ -2,7 +2,9 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel, root_validator, validator
+from pydantic import root_validator, validator
+
+from app.id_base_model.schemas import CustomBaseModel
 
 
 class RequestGrantType(str, Enum):
@@ -10,13 +12,13 @@ class RequestGrantType(str, Enum):
     REFRESH_TOKEN = "refresh_token"
 
 
-class APIUserInfo(BaseModel):
+class APIUserInfo(CustomBaseModel):
     access_token: str
     refresh_token: str
     expires_at: datetime
 
 
-class APIAuthParams(BaseModel):
+class APIAuthParams(CustomBaseModel):
     response_type: str = "code"
     client_id: Union[str, int]
     redirect_uri: str
@@ -24,7 +26,7 @@ class APIAuthParams(BaseModel):
     state: str
 
 
-class APITokenRequest(BaseModel):
+class APITokenRequest(CustomBaseModel):
     refresh_token: Optional[str] = None
     code: Optional[str] = None
     grant_type: RequestGrantType = RequestGrantType.AUTHORIZATION_CODE

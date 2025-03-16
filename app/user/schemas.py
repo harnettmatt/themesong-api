@@ -19,4 +19,4 @@ class UserCreate(IntIDBaseModel):
 
 
 # uncomment when patching is supported
-# class UserUpdate(BaseModel):
+# class UserUpdate(CustomBaseModel):
