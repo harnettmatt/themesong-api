@@ -1,9 +1,10 @@
 import logging
+from typing import Optional
 
 from fastapi import HTTPException
 
 from app.database.service import DatabaseService
-from app.spotify.schemas import SpotifyUserInfo
+from app.spotify.schemas import SpotifyTrack, SpotifyUserInfo
 from app.spotify.service import SpotifyAPIService, SpotifyService
 from app.strava import schemas
 from app.strava.client import StravaAPIService
@@ -21,7 +22,7 @@ class StravaWebhookHandler:
         self.event = event
         self.db_service = db_service
 
-    def handle(self):
+    def handle(self) -> Optional[SpotifyTrack]:
         if self.event.object_type != schemas.StravaObjectType.ACTIVITY:
             return
         if self.event.aspect_type not in (
@@ -31,7 +32,7 @@ class StravaWebhookHandler:
             return
         return self._handle_activity_update_and_create()
 
-    def _handle_activity_update_and_create(self):
+    def _handle_activity_update_and_create(self) -> Optional[SpotifyTrack]:
         # get user
         user = self.db_service.get(id=self.event.owner_id, model_type=User)
         if user is None:
