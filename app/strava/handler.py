@@ -24,12 +24,12 @@ class StravaWebhookHandler:
 
     def handle(self) -> Optional[SpotifyTrack]:
         if self.event.object_type != schemas.StravaObjectType.ACTIVITY:
-            return
+            return None
         if self.event.aspect_type not in (
             schemas.StravaAspectType.UPDATE,
             schemas.StravaAspectType.CREATE,
         ):
-            return
+            return None
         return self._handle_activity_update_and_create()
 
     def _handle_activity_update_and_create(self) -> Optional[SpotifyTrack]:
@@ -57,15 +57,17 @@ class StravaWebhookHandler:
             logging.info(
                 f"Could not find a max heart rate for the following activity: {activity.json()}"
             )
-            return
 
-        # get track
-        track = spotify_service.get_track_for_datetime(max_hr_date_time)
+        # get track if hr data exists
+        track = (
+            spotify_service.get_track_for_datetime(max_hr_date_time)
+            if max_hr_date_time
+            else None
+        )
         if track is None:
             logging.info(
                 f"Could not find a track for the following datetime: {max_hr_date_time}"
             )
-            return
 
         # update activity
         strava_service.update_activity_with_track(activity, track)
