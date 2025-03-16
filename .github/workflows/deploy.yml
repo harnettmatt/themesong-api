@@ -17,5 +17,6 @@ jobs:
           key: ${{secrets.PI_KEY}}
           script: |
             cd ${{github.event.repository.name}}
-            git pull origin main
+            git checkout main
+            git pull
             sudo make rebuild
