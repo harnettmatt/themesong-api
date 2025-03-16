@@ -1,4 +1,5 @@
 """Routing handler for /strava"""
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
@@ -79,7 +80,7 @@ def verify_webhook(request: Request):
     raise HTTPException(403)
 
 
-@ROUTER.post("/webhook", status_code=200, response_model=SpotifyTrack)
+@ROUTER.post("/webhook", status_code=200, response_model=Optional[SpotifyTrack])
 def receive_event(
     request_body: StravaWebhookInput,
     db_service: DatabaseService = Depends(get_db_service),
