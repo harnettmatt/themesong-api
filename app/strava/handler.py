@@ -52,7 +52,10 @@ class StravaWebhookHandler:
 
         # get activity and max hr
         activity = strava_service.api.get_activity(self.event.object_id)
-        max_hr_date_time = strava_service.get_max_hr_date_time_for_activity(activity)
+        (
+            max_hr_date_time,
+            max_heart_rate,
+        ) = strava_service.get_max_hr_date_time_for_activity(activity)
         if max_hr_date_time is None:
             logging.info(
                 f"Could not find a max heart rate for the following activity: {activity.json()}"
@@ -61,7 +64,7 @@ class StravaWebhookHandler:
         # get track if hr data exists
         track = (
             spotify_service.get_track_for_datetime(max_hr_date_time)
-            if max_hr_date_time
+            if max_hr_date_time is not None
             else None
         )
         if track is None:
@@ -70,6 +73,6 @@ class StravaWebhookHandler:
             )
 
         # update activity
-        strava_service.update_activity_with_track(activity, track)
+        strava_service.update_activity_with_track(activity, track, max_heart_rate)
 
         return track

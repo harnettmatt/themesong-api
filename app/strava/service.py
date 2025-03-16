@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 
 from app.spotify.schemas import SpotifyTrack
 from app.strava import schemas
@@ -14,7 +14,7 @@ class StravaService:
 
     def get_max_hr_date_time_for_activity(
         self, activity: schemas.StravaActivity
-    ) -> Optional[datetime]:
+    ) -> Tuple[Optional[datetime], Optional[float]]:
         activity_stream = self.api.get_stream_for_activity(
             id=activity.id,
             stream_keys=[
@@ -22,21 +22,26 @@ class StravaService:
                 schemas.StravaStreamKeys.HEARTRATE,
             ],
         )
-        max_hr_time_mark = activity_stream.get_max_heartrate_time_mark()
+        max_hr_time_mark, max_heart_rate = activity_stream.get_max_heartrate_time_mark()
         if max_hr_time_mark is None:
-            return None
+            return None, None
 
-        return activity.start_date + max_hr_time_mark
+        heart_rate_time = activity.start_date + max_hr_time_mark
+
+        return heart_rate_time, max_heart_rate
 
     def update_activity_with_track(
-        self, activity: schemas.StravaActivity, track: Optional[SpotifyTrack]
+        self,
+        activity: schemas.StravaActivity,
+        track: Optional[SpotifyTrack],
+        max_hr: Optional[float],
     ):
         if activity.description and "Theme Song:" in activity.description:
             return
 
         # TODO: track.href is None in some scenarios? - need to figure out why its None and then handle it, if None is a valid value
         theme_song_string = (
-            f"Theme Song: {track.name} - {track.href}"
+            f"Theme Song: {track.name} - {track.href}, Max HR: {max_hr} bpm"
             if track is not None
             else "Theme Song: sweet sounds of silence"
         )

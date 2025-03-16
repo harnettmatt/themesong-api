@@ -1,7 +1,7 @@
 """schemas for Strava"""
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple
 from urllib.parse import urlencode
 
 from app import settings
@@ -86,22 +86,23 @@ class StravaActivityStream(CustomBaseModel):
     heartrate: StravaActivityStreamData
     time: StravaActivityStreamData
 
-    def get_max_heartrate(self) -> Optional[tuple[int, float]]:
+    def get_max_heartrate(self) -> Tuple[Optional[int], Optional[float]]:
         if len(self.heartrate.data) == 0:
-            return None
+            return None, None
         max_heartrate = max(self.heartrate.data)
         max_heartrate_index = self.heartrate.data.index(max_heartrate)
 
         return max_heartrate_index, max_heartrate
 
-    def get_max_heartrate_time_mark(self) -> Optional[timedelta]:
-        heart_rate_tuple = self.get_max_heartrate()
-        if heart_rate_tuple is None:
-            return None
+    def get_max_heartrate_time_mark(
+        self,
+    ) -> Tuple[Optional[timedelta], Optional[float]]:
+        max_heartrate_index, max_heartrate = self.get_max_heartrate()
+        if max_heartrate_index is None:
+            return None, None
         if len(self.time.data) == 0:
-            return None
+            return None, None
 
-        (index, _) = heart_rate_tuple
-        seconds_elapsed = self.time.data[index]
+        seconds_elapsed = self.time.data[max_heartrate_index]
 
-        return timedelta(seconds=seconds_elapsed)
+        return timedelta(seconds=seconds_elapsed), max_heartrate
