@@ -5,8 +5,13 @@ from urllib.parse import urlencode
 from pydantic import validator
 
 from app import settings
-from app.api_utils.schemas import APIAuthParams, APITokenRequest, APIUserInfo, RequestGrantType
-from app.id_base_model.schemas import StrIDBaseModel, CustomBaseModel
+from app.api_utils.schemas import (
+    APIAuthParams,
+    APITokenRequest,
+    APIUserInfo,
+    RequestGrantType,
+)
+from app.id_base_model.schemas import CustomBaseModel, StrIDBaseModel
 
 
 class SpotifyRefreshTokenRequest(APITokenRequest):
@@ -47,7 +52,7 @@ class SpotifyTokenResponse(SpotifyAuth):
     pass
 
 
-class SpotifyUserResponse(StrIDCustomBaseModel):
+class SpotifyUserResponse(StrIDBaseModel):
     pass
 
 

@@ -6,8 +6,7 @@ from app.database.service import DatabaseService
 from app.persistable.models import Persistable
 
 
-class MockSchemaCreate(
-):
+class MockSchemaCreate:
     """
     Test schema create
     """
