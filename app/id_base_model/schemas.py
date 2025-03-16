@@ -3,7 +3,12 @@
 from pydantic import BaseModel
 
 
-class IntIDBaseModel(BaseModel):
+class CustomBaseModel(BaseModel):
+    class Config:
+        use_enum_values = True
+
+
+class IntIDBaseModel(CustomBaseModel):
     """
     Pydantic model with id field of type int
     """
@@ -11,7 +16,7 @@ class IntIDBaseModel(BaseModel):
     id: int
 
 
-class StrIDBaseModel(BaseModel):
+class StrIDBaseModel(CustomBaseModel):
     """
     Pydantic model with id field of type string
     """
