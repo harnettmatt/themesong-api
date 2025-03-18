@@ -25,14 +25,11 @@ class StravaWebhookHandler:
     def handle(self) -> Optional[SpotifyTrack]:
         if self.event.object_type != schemas.StravaObjectType.ACTIVITY:
             return None
-        if self.event.aspect_type not in (
-            schemas.StravaAspectType.UPDATE,
-            schemas.StravaAspectType.CREATE,
-        ):
-            return None
-        return self._handle_activity_update_and_create()
+        if self.event.aspect_type == schemas.StravaAspectType.CREATE:
+            return self._handle_activity_create()
+        return None
 
-    def _handle_activity_update_and_create(self) -> Optional[SpotifyTrack]:
+    def _handle_activity_create(self) -> Optional[SpotifyTrack]:
         # get user
         user = self.db_service.get(id=self.event.owner_id, model_type=User)
         if user is None:
