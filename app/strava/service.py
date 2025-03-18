@@ -34,9 +34,8 @@ class StravaService:
         if activity.description and "Theme Song:" in activity.description:
             return
 
-        # TODO: track.href is None in some scenarios? - need to figure out why its None and then handle it, if None is a valid value
         theme_song_string = (
-            f"Theme Song: {track.name} - {track.href}"
+            f"Theme Song: {track.name} by {', '.join([artist.name for artist in track.artists])} - https://open.spotify.com/track/{track.id}"
             if track is not None
             else "Theme Song: sweet sounds of silence"
         )

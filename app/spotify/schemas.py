@@ -65,11 +65,16 @@ class SpotifyExternalUrls(CustomBaseModel):
     spotify: str
 
 
+class SpotifyArtist(CustomBaseModel):
+    id: str
+    name: str
+
+
 class SpotifyTrack(CustomBaseModel):
     id: str
     duration_ms: int
     name: str
-    href: str  # link to the api to get more details on track
+    artists: List[SpotifyArtist]
 
 
 class SpotifyPlayHistoryObject(CustomBaseModel):
