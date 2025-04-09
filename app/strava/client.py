@@ -9,7 +9,7 @@ from app.api_utils.service import APIService
 from app.database.service import DatabaseService
 from app.strava import models, schemas
 
-TOKEN_URL = "https://www.strava.com/oauth/token"
+OAUTH_PREFIX = "https://www.strava.com/oauth"
 API_PREFIX = "https://www.strava.com/api/v3"
 
 
@@ -41,7 +41,7 @@ class StravaAPIService(APIService):
         params = schemas.StravaTokenRequest(code=code)
         response: Response = cls._execute(
             requests.post,
-            TOKEN_URL,
+            f"{OAUTH_PREFIX}/token",
             params=params.dict(),
         )
         return schemas.StravaTokenResponse(**response.json())
@@ -49,7 +49,9 @@ class StravaAPIService(APIService):
     def refresh_token(self) -> schemas.StravaAuth:
         logging.info(f"Refreshing Strava token for user: {self.user_info.id}")
         params = schemas.StravaTokenRequest(refresh_token=self.user_info.refresh_token)
-        response = self._execute(requests.post, TOKEN_URL, params=params.dict())
+        response = self._execute(
+            requests.post, f"{OAUTH_PREFIX}/token", params=params.dict()
+        )
         return schemas.StravaAuth(**response.json())
 
     def get_activity(self, id: int) -> schemas.StravaActivity:
@@ -77,4 +79,16 @@ class StravaAPIService(APIService):
             requests.put,
             f"{API_PREFIX}/activities/{id}",
             data=data,
+        )
+
+    def deauthorize(self):
+        logging.info(f"Deauthorizing Strava user: {self.user_info.id}")
+        self.check_auth()
+        params = schemas.StravaDeauthorizeRequest(
+            access_token=self.user_info.access_token
+        ).dict()
+        self._execute(
+            requests.post,
+            f"{OAUTH_PREFIX}/deauthorize",
+            params=params,
         )

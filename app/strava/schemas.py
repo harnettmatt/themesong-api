@@ -51,6 +51,10 @@ class StravaTokenRequest(APITokenRequest):
     client_secret: str = settings.ENV_VARS.STRAVA_CLIENT_SECRET
 
 
+class StravaDeauthorizeRequest:
+    access_token: str
+
+
 class StravaAthlete(IntIDBaseModel):
     username: str
     firstname: str

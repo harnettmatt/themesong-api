@@ -1,12 +1,14 @@
 """Routing handler for /users"""
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth.utils import get_current_user_id
-from app.database.database import get_session
+from app.database.database import get_db_service, get_session
 from app.database.service import DatabaseService
+from app.strava.client import StravaAPIService
+from app.strava.schemas import StravaUserInfo
 from app.user import models, schemas
 
 ROUTER = APIRouter()
@@ -66,9 +68,18 @@ def create(
 def delete(
     id: str,
     session: Session = Depends(get_session),
+    db_service: DatabaseService = Depends(get_db_service),
     # user_id: int = Depends(get_current_user_id),
 ) -> Any:
     """
     Deletes a user by id
     """
+    user = db_service.get(id=id, model_type=models.User)
+    if not user:
+        return HTTPException(status_code=404, detail="User not found")
+
+    strava_user_info = StravaUserInfo.from_orm(user.strava_user_info)
+    strava_api_service = StravaAPIService(strava_user_info, db_service)
+    strava_api_service.deauthorize()
+
     return DatabaseService(session).delete(id=id, model_type=models.User)
